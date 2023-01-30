@@ -28,6 +28,8 @@ training_data_pipeline:
   train_feature_table: "${data.paths.ticker_name}.train_feature"
   train_feature_info_table: "${data.paths.ticker_name}.train_feature_info"
   train_feature_selection_table: "${data.paths.ticker_name}.train_feature_selection"
+  train_tuning_info_table: "${data.paths.ticker_name}.train_tuning_info"
+  train_training_info_table: "${data.paths.ticker_name}.train_training_info"
   #train_data_prefix: training
   #train_base_path: "${data.paths.base_data_loc}${data.training_data_pipeline.train_data_prefix}/"
   

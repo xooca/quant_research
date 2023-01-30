@@ -33,7 +33,7 @@ class pipelines:
             self.db_conection = duckdb.connect(database=self.database_path , read_only=False)
         self.feature_mart = de.feature_mart(master_config_path=master_config_path,
                                             master_config_name=master_config_name,
-                                            db_conection=self.db_conection,
+                                            db_conection=self.db_conection,database_path= self.database_path,
                                             train_feature_table=train_feature_table,
                                             train_feature_info_table=train_feature_info_table,
                                             verbose=verbose)
@@ -187,7 +187,7 @@ class pipelines:
                 self.feature_mart.rolling_weighted_exponential_average(rolling_weighted_exponential_average_args, 
                                                                        tmpdf=None, return_df=False)
         self.save_check_point()
-        '''
+        
         # Creation of rolling_percentile features
         for col in ['close', 'high', 'low']:
             for window in [15, 45, 60, 90, 120,240,500]:
@@ -291,5 +291,6 @@ class pipelines:
                                         'transform_options':['rolling_percentage_change_multiplier','rank']}
             self.feature_mart.treat_unstable_cols(treat_unstable_cols_args)
             self.save_check_point()
+        '''
         self.feature_mart.update_nulls(filter_ind='time_split_train_fold_10',tolerance_count=6000)
         self.save_check_point(end_conection=True)

@@ -26,6 +26,7 @@ import gc
 from pandas.api.types import is_numeric_dtype, is_bool_dtype,   is_datetime64_any_dtype, is_string_dtype, is_datetime64_dtype
 import random
 from dateutil.relativedelta import relativedelta
+import duckdb
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -1323,9 +1324,18 @@ class ConvertUnstableCols(BaseEstimator, TransformerMixin):
         return df
     
 class feature_mart(DefineConfig):
-    def __init__(self, master_config_path, master_config_name, db_conection, train_feature_table=None,train_feature_info_table=None,verbose=True,mode='train'):
+    def __init__(self, 
+                 master_config_path, 
+                 master_config_name, 
+                 db_conection, 
+                 database_path, 
+                 train_feature_table=None,
+                 train_feature_info_table=None,
+                 verbose=True,
+                 mode='train'):
         DefineConfig.__init__(self, master_config_path, master_config_name)
         self.db_conection = db_conection
+        self.database_path = database_path
         self.mode = mode
         self.ohlc = ddu.load_table_df(
             self.db_conection, table_name=self.ohlc_raw_data_table)
@@ -2035,7 +2045,9 @@ class feature_mart(DefineConfig):
         max_date,min_date = self.get_min_max_date(tmpdf)
         self.create_column_and_save_to_table(
             time_stamp_col='timestamp', data=tmpdf)
-        self.save_feature_info(function_name='last_tick_greater_values_count',feature_name=feature_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+        self.save_feature_info(function_name='last_tick_greater_values_count',
+                               feature_name=feature_name,max_date=max_date,min_date=min_date,status='saved',
+                               feature_args=func_dict_args)
         if return_df:
             return tmpdf
         del tmpdf
@@ -2523,7 +2535,7 @@ class feature_mart(DefineConfig):
         min_periods = func_dict_args.get('min_periods')
         col_name = f"ROLLRNK_{column}_{window}_{min_periods}".replace('-','_minus_')
         #if tmpdf is None:
-         #   tmpdf = self.get_ohlc_df_v2(column_name=col_name)
+        #   tmpdf = self.get_ohlc_df_v2(column_name=col_name)
         tmpdf = self.get_ohlc_df_v2(tmpdf,column_name=col_name)
         if tmpdf is None:
             return
@@ -2536,7 +2548,8 @@ class feature_mart(DefineConfig):
         max_date,min_date = self.get_min_max_date(tmpdf)
         self.create_column_and_save_to_table(
             time_stamp_col='timestamp', data=tmpdf)
-        self.save_feature_info(function_name='rolling_rank',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+        self.save_feature_info(function_name='rolling_rank',feature_name=col_name,max_date=max_date,
+                               min_date=min_date,status='saved',feature_args=func_dict_args)
         if return_df:
             return tmpdf
         del tmpdf, merge_dict
@@ -3005,16 +3018,7 @@ class feature_mart(DefineConfig):
         sql = f"select * from {self.train_feature_table} where time_split = '{filter_ind}'"
         df_features = ddu.load_table_df(self.db_conection,table_name=None,column_names=None,filter=None,load_sql=sql)
         df_features = df_features.loc[:,~df_features.columns.duplicated()].copy()
-        #df_features = df_features.reset_index(drop=True)
-        #df_features.index.names = ['timestamp_index']
-        #raw_df.index.names = ['timestamp_index']
-        #print(raw_df.head())
-        #print("----------------")
-        #print(df_features.head())
-        #df_features = pd.merge(df_features,raw_df,on='timestamp',how='inner')
-        #print("----------------")
-        #print(df_features.head())
-        #print(df_features.columns.tolist())
+
         dist1 = df_features['open']
         list_val = []
         for col in df_features.columns.tolist():
@@ -3031,7 +3035,17 @@ class feature_mart(DefineConfig):
             self.save_feature_info(function_name='update_unstable_columns',feature_name=col,column_type='unstable_column',max_date='1999-01-01 09:00:00',min_date='1999-01-01 09:00:00',status='saved',feature_args=func_dict_args)
         #return list_val
     
-                   
+    def save_check_point(self,end_conection=False):
+        if self.database_path is not None:
+            self.db_conection.close()
+            if not end_conection:
+                du.print_log(f"Checkpointing successful")
+                self.db_conection = duckdb.connect(database=self.database_path , read_only=False)
+            else:
+                du.print_log(f"Connection closed")
+        else:
+            du.print_log(f"Checkpointing not possible as database_path is {self.database_path}")
+                                 
     def treat_unstable_cols(self, func_dict_args):
         # treat_unstable_cols_args = {'basis_column':'close','ohlc_columns':['close','open','high','low'],'tolerance':2,'transform_options':['rank'],filter_ind='time_split_train_fold_10'}
         print_log("*"*100)
@@ -3121,7 +3135,7 @@ class feature_mart(DefineConfig):
                                             'limit': None, 'freq': None, 'multiplier': 100}
                             self.rolling_percentage_change_multiplier(
                                 func_dict_args_tmp, tmpdf=df,return_df=False)
-                    
+                    self.save_check_point(end_conection=False)
                     #max_date,min_date = self.get_min_max_date(df)
                     #if load_date is not None:
                     #    min_date = None
@@ -3277,13 +3291,21 @@ class feature_mart(DefineConfig):
         info = ddu.load_table_df(self.db_conection,table_name=None,column_names=None,filter=None,load_sql=sql)
         features = info[(info['column_type'] == 'feature')]['feature_name'].tolist()
         features = [x.strip() for x in features]
-
+        tmp_sql = f"select * from {self.train_feature_table} limit 10"
+        dummy_df = ddu.load_table_df(self.db_conection,table_name=None,column_names=None,filter=None,load_sql=tmp_sql)
+        all_columns = set(dummy_df.columns.tolist())
+        del dummy_df
+        reject_features = [col for col in features if col not in all_columns]
+        print_log(f"Reject columns are :")
+        print_log(reject_features)
+        features = [col for col in features if col in all_columns]
         sql = f"select "
         sum_list = []
         for col in features:
             sum_list.append(f"sum(case when {col} is null then 1 else 0 end) {col}")
 
         sql = sql + ", ".join(sum_list) + f" from {self.train_feature_table} where time_split = '{filter_ind}'"
+        print(sql)
         nulls_df = ddu.load_table_df(self.db_conection,table_name=None,column_names=None,filter=None,load_sql=sql)
         nulls_df = nulls_df.T
         nulls_df = nulls_df.reset_index()

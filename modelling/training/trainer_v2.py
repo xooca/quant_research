@@ -12,7 +12,7 @@ class execute_training_pipeline:
                  train_feature_table = None,
                  train_feature_selection_table=None,
                  train_feature_info_table=None,
-                 train_running_info_table=None,
+                 train_training_info_table=None,
                  verbose=True):
 
         
@@ -27,7 +27,7 @@ class execute_training_pipeline:
                                                                             train_feature_table = train_feature_table,
                                                                             train_feature_selection_table=train_feature_selection_table,
                                                                             train_feature_info_table=train_feature_info_table,
-                                                                            train_running_info_table=train_running_info_table,
+                                                                            train_training_info_table=train_training_info_table,
                                                                             verbose=verbose)
 
     def run_pipelines(self,model_params,model_fit_params,prob_theshold_list=None,label_name = None,feature_selection_method='featurewiz'):

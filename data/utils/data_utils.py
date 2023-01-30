@@ -323,9 +323,20 @@ class execute_data_pipeline:
         print_log(f"Feature spec file is {self.feature_spec_name}")
         self.feature_spec = importlib.import_module(
             f"{self.feature_spec_name}")
-        self.feature_pipeline = self.feature_spec.pipelines(
-            master_config_path, master_config_name, db_conection,database_path,train_feature_table,train_feature_info_table,
-            techindicator1,techindicator2,techindicator3,time_splitter,column_unstable,label_creation,update_unstable,verbose)
+        self.feature_pipeline = self.feature_spec.pipelines(master_config_path, 
+                                                            master_config_name, 
+                                                            db_conection,
+                                                            database_path,
+                                                            train_feature_table,
+                                                            train_feature_info_table,
+                                                            techindicator1,
+                                                            techindicator2,
+                                                            techindicator3,
+                                                            time_splitter,
+                                                            column_unstable,
+                                                            label_creation,
+                                                            update_unstable,
+                                                            verbose)
 
     def run_pipelines(self):
         self.feature_pipeline.pipeline_definitions()
