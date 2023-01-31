@@ -17,10 +17,8 @@ import data.utils.data_utils as du
 import random
 import lightgbm as lgb
 import sklearn.metrics as mt
-from modelling.model_specs.base import base_model
 from collections import Counter
 import gc
-
 
 
 class base_model(DefineConfig):
@@ -262,17 +260,29 @@ class base_model(DefineConfig):
         #        all_dict.update({col:{'train':i,'test':j,'validation':k}})
         return col_list
 
+    def get_params_trained_data(self,label_name,feature_selection_method,algo_name,tuning_type):
+        sql = f"select best_tuned_parameters from {self.train_tuning_info_table} where label_name = '{label_name} and feature_selection_method = '{feature_selection_method}' and algo_name = '{algo_name}' and tuning_type = '{tuning_type}'"
+        info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        best_param = info['best_tuned_parameters'].loc[0]
+        return best_param
+    
     def create_model(self,model_params):
         print("Method not implemented in base class")
         model = None
         return model
     
-    def train_all_labels(self,model_params,model_fit_params,prob_theshold_list=None,label_name = None,
+    def model_spec_info(self):
+        self.algo_name = 'none'
+        self.tuning_type = 'none'
+        
+    def train_all_labels(self,model_params,model_fit_params,prob_theshold_list=None,forced_label_name = None,
                          feature_selection_method='featurewiz',force_training_labels=[]):
         self.get_feature_selection_info(feature_selection_method=feature_selection_method)
+        print(self.feature_selection_dict)
         self.feature_selection_method = feature_selection_method
-        if label_name is not None:
-            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i==label_name}
+        self.model_spec_info()
+        if forced_label_name is not None:
+            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i==forced_label_name}
         already_trained_labels = self.get_prev_trained_data()
         if len(force_training_labels)> 0:
             already_trained_labels = [c for c in already_trained_labels if c not in force_training_labels]
@@ -283,6 +293,8 @@ class base_model(DefineConfig):
         if len(self.feature_selection_dict) > 0:
             for label_name,feature_map_list in self.feature_selection_dict.items():
                 print(f"MODEL TRAINING STARTS FOR {label_name}")
+                if model_params is None:
+                    model_params = self.get_params_trained_data(label_name,self.feature_selection_method,self.algo_name,self.tuning_type)
                 model = self.create_model(model_params)
                 fold_combinations=self.get_label_combination(scramble_all=True,comb_diff=3,select_value=4)
                 self.model_train(model,db_connection=self.db_connection,
@@ -320,6 +332,7 @@ class base_model(DefineConfig):
         print("Training data extract sql is :")
         print(sql)
         train_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        train_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         train_data = train_data.dropna()
         print("Train Data label distibution is :")
         print(train_data[label_name].value_counts())
@@ -334,6 +347,7 @@ class base_model(DefineConfig):
         print("Validation data extract sql is :")
         print(sql)
         validation_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        validation_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         validation_data = validation_data.dropna()
         print("Validation Data label distibution is :")
         print(validation_data[label_name].value_counts())
@@ -349,6 +363,7 @@ class base_model(DefineConfig):
         print("Testing data extract sql is :")
         print(sql)
         test_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        test_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         test_data = test_data.dropna()
 
         print("Test Data label distibution is :")
@@ -410,7 +425,7 @@ class base_model(DefineConfig):
         return res_comb
 
     def get_label_combination(self,scramble_all=False,comb_diff=3,select_value=4):
-        sql = f"select distinct time_split from banknifty.train_feature"
+        sql = f"select distinct time_split from {self.train_feature_table}"
         time_split_df = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         
         time_splits = [col for col in time_split_df['time_split'].tolist() if str(col) != 'nan']

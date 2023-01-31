@@ -26,6 +26,7 @@ from optuna.integration import LightGBMPruningCallback
 
 
 class tuner_model(base_model_tuning):
+                 
     def __init__(self,
                  master_config_path, 
                  master_config_name,

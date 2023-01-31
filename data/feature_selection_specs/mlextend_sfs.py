@@ -58,14 +58,14 @@ class feature_selection(base_feature_selection):
         max_label =max(labels,key=labels.count)
         df_features = df_features[df_features[label]==max_label]
         cols = [col for col in df_features.columns if col != label]
-        corr_features = self.correlation(df_features[cols], 0.8)
+        corr_features = self.correlation(df_features[cols], 0.9)
         print(f"Corelated features are {corr_features}")
         print(f"Before cor drop shape is {df_features.shape}")
         df_features.drop(labels=corr_features, axis=1, inplace=True)
         print(f"After cor drop shape is {df_features.shape}")
-
-        sfs = SFS(RandomForestClassifier(n_estimators=75, n_jobs=4, random_state=0),
-                k_features=150, # the lower the features we want, the longer this will take
+        cols = [col for col in df_features.columns if col != label]
+        sfs = SFS(RandomForestClassifier(n_estimators=75, n_jobs=-1, random_state=0),
+                k_features=(100,150), # the lower the features we want, the longer this will take
                 forward=False,
                 floating=False,
                 verbose=2,
@@ -74,5 +74,8 @@ class feature_selection(base_feature_selection):
         
         sfs = sfs.fit(df_features[cols], df_features[label])
         selected_features= list(sfs.k_feature_names_)
+        print(f"For label name {label}")
+        print(sfs.subsets_)
+        print(f"best combination {sfs.k_score_}, {sfs.k_feature_idx_}")
 
         return selected_features

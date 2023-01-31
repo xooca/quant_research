@@ -23,7 +23,7 @@ class model(base_model):
                  train_feature_table = None,
                  train_feature_selection_table=None,
                  train_feature_info_table=None,
-                 train_running_info_table=None,
+                 train_training_info_table=None,
                  verbose=True):
         base_model.__init__(self, 
                                 master_config_path=master_config_path, 
@@ -33,10 +33,14 @@ class model(base_model):
                                 train_feature_table = train_feature_table,
                                 train_feature_selection_table=train_feature_selection_table,
                                 train_feature_info_table=train_feature_info_table,
-                                train_training_info_table=train_running_info_table,
+                                train_training_info_table=train_training_info_table,
                                 verbose=verbose)
         
-        
+    
+    def model_spec_info(self):
+        self.algo_name = 'lightgbm'
+        self.tuning_type = 'optuna'
+           
     def create_model(self,model_params):
         model = None
         print(f"Model parameters are : {model_params}")

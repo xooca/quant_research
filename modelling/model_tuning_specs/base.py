@@ -20,7 +20,6 @@ class base_model_tuning(DefineConfig):
                  train_feature_table = None,
                  train_feature_selection_table=None,
                  train_tuning_info_table=None,
-                 filter_out_cols = None,
                  verbose=True):
         DefineConfig.__init__(self, master_config_path, master_config_name)
         self.database_path = database_path
@@ -35,7 +34,6 @@ class base_model_tuning(DefineConfig):
                        
         #self.train_feature_table = train_feature_table
         #self.train_feature_info_table = train_feature_info_table
-        self.filter_out_cols = filter_out_cols
         self.verbose = verbose
         if self.database_path is None:
             self.db_connection = db_connection
@@ -190,17 +188,22 @@ class base_model_tuning(DefineConfig):
                                             select_value=select_value)
         return comb_list
         
-    def tune_all_labels(self,label_name = None,feature_selection_method='featurewiz',force_tuning_labels=[],limit=2):
+    def tune_all_labels(self,forced_label_name = None,feature_selection_method='featurewiz',force_tuning_labels=[],limit=2):
         self.get_feature_selection_info(feature_selection_method=feature_selection_method)
         self.feature_selection_method = feature_selection_method
-        if label_name is not None:
-            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i==label_name}
-        already_trained_labels = self.get_prev_tuned_data()
+        #if forced_label_name is not None:
+        #    self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i==forced_label_name}
+            
+        if len(force_tuning_labels) > 0:
+            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i in force_tuning_labels}
+        else:
+            already_trained_labels = self.get_prev_tuned_data()
+            print(f"Already present labels for {'.'.join(already_trained_labels)}")
+            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i not in already_trained_labels}
+
         
-        if len(force_tuning_labels)> 0:
-            already_trained_labels = [c for c in already_trained_labels if c not in force_tuning_labels]
-        print(f"Already present labels for {'.'.join(already_trained_labels)}")
-        self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i not in already_trained_labels}
+        #if len(force_tuning_labels)> 0:
+        #    already_trained_labels = [c for c in already_trained_labels if c not in force_tuning_labels]
 
         if len(self.feature_selection_dict) > 0:
             for label_name,feature_map_list in self.feature_selection_dict.items():
@@ -216,7 +219,7 @@ class base_model_tuning(DefineConfig):
                                             'label_mapper':feature_map_list[1],
                                             'limit':limit
                                             } 
-                self.model_tune(**model_tune_dict)
+                self.model_tune(model_tune_dict)
                                             
         else:
             print(f"feature_selection_dict is empty {self.feature_selection_dict}. No training will start")
@@ -229,6 +232,7 @@ class base_model_tuning(DefineConfig):
         print("Training data extract sql is :")
         print(sql)
         train_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        train_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         train_data = train_data.dropna()
         print("Train Data label distibution is :")
         print(train_data[label_name].value_counts())
@@ -241,6 +245,7 @@ class base_model_tuning(DefineConfig):
         print("Validation data extract sql is :")
         print(sql)
         validation_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        validation_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         validation_data = validation_data.dropna()
         print("Validation Data label distibution is :")
         print(validation_data[label_name].value_counts())
@@ -254,6 +259,7 @@ class base_model_tuning(DefineConfig):
         print("Testing data extract sql is :")
         print(sql)
         test_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        test_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         test_data = test_data.dropna()
 
         print("Test Data label distibution is :")
@@ -280,7 +286,8 @@ class base_model_tuning(DefineConfig):
         self.algo_name = 'none'
         
     def model_tune(self,model_tune_dict):
-        self.selected_folds = random.sample(set(model_tune_dict['fold_combinations']), model_tune_dict['limit'])  
+        print(model_tune_dict)
+        self.selected_folds = random.sample(list(set(model_tune_dict['fold_combinations'])), model_tune_dict['limit'])  
         self.selected_feature_names = model_tune_dict['feature_names']
         self.selected_label_name= model_tune_dict['label_name']
         self.selected_label_mapper = model_tune_dict['label_mapper']

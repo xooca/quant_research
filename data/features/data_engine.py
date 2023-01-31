@@ -1508,6 +1508,33 @@ class feature_mart(DefineConfig):
         else:
             return 'unknown'
 
+
+    def label_generator_4class_50points(self, val):
+        if val <= 50 and val >= -50:
+            return 'neutral'
+        elif val > 50:
+            return 'call'
+        elif val < -50:
+            return 'put'
+        else:
+            return 'unknown'
+ 
+    def label_generator_3class_50points_no_neutral(self, val):
+        if val > 50:
+            return 'call'
+        elif val < -50:
+            return 'put'
+        else:
+            return 'unknown'
+
+    def label_generator_3class_20points_no_neutral(self, val):
+        if val > 20:
+            return 'call'
+        elif val < -20:
+            return 'put'
+        else:
+            return 'unknown'
+                  
     def label_generator_4class_mod1(self, val):
         if val <= 20 and val >= -20:
             return 'neutral'

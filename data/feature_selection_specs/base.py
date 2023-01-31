@@ -7,6 +7,7 @@ import datetime as dt
 import gc
 import random
 from collections import Counter
+import numpy as np
 
 class base_feature_selection(DefineConfig):
     def __init__(self, 
@@ -119,6 +120,11 @@ class base_feature_selection(DefineConfig):
                                         time_split='time_split_train_fold_10'):
         sql = f"select {','.join(self.features)},{label} from {self.train_feature_table} where time_split = '{time_split}'"
         df_features = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        print(f"Shape of features loaded is {df_features.shape}")
+
+        df_features.replace([np.inf, -np.inf], np.nan, inplace=True)
+        null_cols = du.checknans(df_features, threshold=100)
+        df_features = df_features.drop(null_cols, axis=1)
         df_features = df_features.dropna()
         df_features = df_features[df_features[label] != 'unknown']
         dtypes_df = pd.DataFrame(df_features.dtypes).reset_index()
@@ -139,7 +145,7 @@ class base_feature_selection(DefineConfig):
                 actual_cols = [col for col in actual_cols if (cp not in col)] 
             print(f"Length of actual cols after filtering out {len(actual_cols)}")
         df_features = df_features[actual_cols]
-        print(f"Shape of df_features is  {df_features.shape}")
+        print(f"Final shape of df_features is  {df_features.shape}")
         return df_features
     
     def get_label_mapper(self,df_features,label):
@@ -161,8 +167,10 @@ class base_feature_selection(DefineConfig):
     def set_feature_selection_name(self):
         self.feature_selection_method = None
         
-    def run_feature_selection(self):
+    def run_feature_selection(self,forced_labels=[]):
         self.get_feature_info()
+        if len(forced_labels) > 0:
+            self.labels = forced_labels
         for label in self.labels:
             print("*"*100)
             print(f"Selecting features for label {label}")
