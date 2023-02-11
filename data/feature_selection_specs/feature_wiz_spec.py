@@ -39,5 +39,10 @@ class feature_selection(base_feature_selection):
     def perform_feature_selection(self,df_features,label):
         ret_obj = featurewiz(df_features,label)
         selected_features = ret_obj[0]
+        ret_dict = {}
+        null_cols = du.checknans(df_features, threshold=100)
+        selected_features = [col for col in selected_features if col not in null_cols]
+        for col in selected_features:
+            ret_dict.update({col:0.0})
         del ret_obj
-        return selected_features
+        return ret_dict
