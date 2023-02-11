@@ -148,6 +148,40 @@ class base_feature_selection(DefineConfig):
         print(f"Final shape of df_features is  {df_features.shape}")
         return df_features
     
+    def get_datatype(self, obj):
+        if is_numeric_dtype(obj):
+            return 'NUMERIC'
+        if is_string_dtype(obj):
+            return 'OBJECT'
+        if is_bool_dtype(obj):
+            return 'OBJECT'
+        if is_datetime64_any_dtype(obj):
+            return 'TIMESTAMP'
+        else:
+            return 'UNKNOWN'
+        
+    def get_cat_nocat_col(self, tmpdf, label_name,cat_threshold=100):
+        info_dict = {}
+        self.dfcolumns = tmpdf.columns.tolist()
+        self.dfcolumns_nottarget = [
+            col for col in self.dfcolumns if col != label_name]
+        for col in self.dfcolumns_nottarget:
+            col_unique_cnt = tmpdf[col].nunique()
+            dtype = self.get_datatype(tmpdf[col])
+            if dtype == 'NUMERIC' and col_unique_cnt <=cat_threshold:
+                info_dict.update({col:['categorical',dtype,col_unique_cnt]})
+            elif dtype == 'NUMERIC' and col_unique_cnt > cat_threshold:
+                info_dict.update({col:['noncategorical',dtype,col_unique_cnt]})
+            elif dtype == 'OBJECT':
+                info_dict.update({col:['categorical',dtype,col_unique_cnt]})
+            elif dtype == 'TIMESTAMP':
+                info_dict.update({col:['timestamp',dtype,col_unique_cnt]})    
+            elif dtype == 'UNKNOWN':
+                info_dict.update({col:['unknown',dtype,col_unique_cnt]})   
+            else:
+                info_dict.update({col:['unknown',dtype,col_unique_cnt]})                         
+        return info_dict
+    
     def get_label_mapper(self,df_features,label):
         counter_obj = dict(Counter(df_features[label].tolist()))
         t = sorted(counter_obj.items(),key=lambda x:x[1],reverse=True)
@@ -173,18 +207,22 @@ class base_feature_selection(DefineConfig):
             self.labels = forced_labels
         for label in self.labels:
             print("*"*100)
-            print(f"Selecting features for label {label}")
+            print(f"****** SELECTING FEATURES for LABEL {label} *******")
+            print("*"*100)
             df_features = self.get_info_for_feature_selection(label=label,time_split=random.choice(self.train_split))
             label_mapper = self.get_label_mapper(df_features,label)
             df_features[label] = df_features[label].map(label_mapper)
             selected_features = self.perform_feature_selection(df_features,label)
-            for col in selected_features:
+            for col,f_imp in selected_features.items():
                 self.upsert_feature_selection_table(label_name=label,
                                                     feature_selection_method=self.feature_selection_method,
                                                     feature_name=col,
                                                     selection_flag = 'Y',
-                                                    feature_importance=0.0,
+                                                    feature_importance=f_imp,
                                                     label_mapper=label_mapper)
+            print("*"*100)
+            print(f"******* FEATURE SELECTION COMPLETED FOR LABEL {label} ********")
+            print("*"*100)
             gc.enable()
             del df_features
             gc.collect()

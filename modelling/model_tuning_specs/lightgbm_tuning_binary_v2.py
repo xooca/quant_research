@@ -15,7 +15,7 @@ import random
 import lightgbm as lgb
 import numpy as np
 import sklearn.metrics as mt
-from modelling.model_tuning_specs.base import base_model_tuning
+from modelling.model_tuning_specs.base_v2 import base_model_tuning
 import pickle
 import pandas as pd
 import pickle
@@ -25,7 +25,7 @@ import gc
 from optuna.integration import LightGBMPruningCallback
 
 
-class tuner_model(base_model_tuning):
+class model(base_model_tuning):
                  
     def __init__(self,
                  master_config_path, 
@@ -49,9 +49,9 @@ class tuner_model(base_model_tuning):
     
     def get_search_space(self,trial):
         param = {
-            "objective": 'multiclass',
+            "objective": 'binary',
             "n_estimators": trial.suggest_int("n_estimators", 200, 5000),
-            "metric": "None",
+            "metric": "auc",
             "boosting": "gbdt",
             #"learning_rate" : trial.suggest_loguniform('learning_rate', 0.01, 0.3),
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3),
@@ -71,44 +71,73 @@ class tuner_model(base_model_tuning):
         }
         return param 
     
-
-    def define_and_train_model(self,trial,param,train_data,train_data_label,validation_data,validation_data_label):
-        def evaluate_macroF1_lgb(truth, predictions):  
+    def create_fit_params(self):
+        def evaluate_f1score(truth, predictions):  
             # this follows the discussion in https://github.com/Microsoft/LightGBM/issues/1483
-            pred_labels = predictions.reshape(len(np.unique(truth)),-1).argmax(axis=0)
-            f1 = f1_score(truth, pred_labels, average='macro')
-            return ('macroF1', f1, True) 
+            pred_labels = np.rint(predictions)
+            f1 = f1_score(truth, pred_labels)
+            return ('F1', f1, True) 
         
+        self.model_fit_params = {}
+        self.model_fit_params.update({'X':self.train_data})
+        self.model_fit_params.update({'y':self.train_data_label})
+        
+        self.model_fit_params.update({'eval_set':[(self.validation_data, self.validation_data_label), 
+                                                  (self.train_data, self.train_data_label)]})
+        self.model_fit_params.update({'eval_names':['valid','train']})
+        self.model_fit_params.update({'categorical_feature':self.cat_cols})
+        self.model_fit_params.update({'eval_metric':evaluate_f1score})
+        
+        print(f"Elements is model_fit_params are {self.model_fit_params.keys()}")
+    
+    def define_and_train_model(self,trial,param):
         model = lgb.LGBMClassifier(**param)
-            #model.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=0, early_stopping_rounds=100,callbacks=[
-            #        LightGBMPruningCallback(trial, "multi_logloss")
-            #    ])
-        model.fit(train_data, train_data_label, 
-                  #eval_set=[(validation_data, validation_data_label),(train_data, train_data_label)],
-                  eval_set=[(validation_data, validation_data_label)],
-                  #eval_names=['valid','train'],
-                  verbose=100, early_stopping_rounds=100,eval_metric=evaluate_macroF1_lgb,
-                  callbacks=[
-                    LightGBMPruningCallback(trial, "macroF1")
-                ])
+        self.model_fit_params.update({'callbacks':[LightGBMPruningCallback(trial, "F1")]})
+        model.fit(**self.model_fit_params)
         return model
     
-    def evaluate_model(self,model,test_data,test_data_label):
-        preds = model.predict(test_data)
+    def evaluate_model(self,model):
+        test_data_label = np.array(self.test_data_label)
+        test_data_label = np.squeeze(self.test_data_label)
+        preds = model.predict(self.test_data)
+        preds_prob = model.predict_proba(self.test_data)[:, 1]
+        #preds_prob = np.max(preds_prob,axis=1)
         pred_labels = np.rint(preds)
         accuracy = accuracy_score(test_data_label, pred_labels)
-        f1 = f1_score(test_data_label, pred_labels,average='macro')
+        f1 = f1_score(test_data_label, pred_labels)
+        print(test_data_label)
+        print(preds_prob)        
+        auc_score = roc_auc_score(test_data_label, preds_prob)
 
         print(f"ACCURACY VALUE IS {accuracy}")
+        print(f"AUC VALUE IS {auc_score}")
         print(f"F1 VALUE IS {f1}")
         #metric_val = precision_score(test_data_label, pred_labels,labels=[1,2],average='macro')
-        metric_val = precision_score(test_data_label, pred_labels,average='macro')
-        print(f"METRIC VALUE IS {metric_val}")
-        return f1
+        metric_val = precision_score(test_data_label, pred_labels)
+        print(f"PRECISION VALUE IS {metric_val}")
+        del test_data_label
+        return auc_score
             
-    def initialize_tuning_type(self):
+    def model_spec_info(self):
         self.tuning_type = 'optuna'
         self.algo_name = 'lightgbm'
+        self.add_cat_col_to_model = True
+        self.convert_to_cat = False
+        self.if_return_df = True
+        
+        self.train_data_scamble=True
+        self.train_sampling_fraction=1
+        self.validation_data_scamble=True
+        self.validation_sampling_fraction=1
+        
+        self.scramble_all=True
+        self.comb_diff=3
+        self.select_value=4
+        self.stride=3
+        self.strategy='chunking'
+        
+        self.feature_strategy = 'selection' # 'all-notinclude-unstable-feature','all-include-unstable-feature','selection'
+        self.standardize_columns = None # 'all','only-unstable', None
         
     def define_and_run_study(self):
         study = optuna.create_study(direction='maximize', study_name="lightgbmtune",)
@@ -118,4 +147,3 @@ class tuner_model(base_model_tuning):
         #best_model = study.best_trial.user_attrs['model']
         best_model=None
         return best_model,dict(study.best_trial.params)
-        

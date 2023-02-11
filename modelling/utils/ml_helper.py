@@ -1,3 +1,19 @@
+import sys,os
+import data.utils.duckdb_utils as ddu
+import duckdb
+import data.utils.data_utils as du
+import random
+import lightgbm as lgb
+import numpy as np
+import sklearn.metrics as mt
+from modelling.model_specs.base import base_model
+import pickle
+import pandas as pd
+import pickle
+import pandas as pd
+from collections import Counter
+import gc
+from sklearn.preprocessing import MinMaxScaler
 from config.common.config import Config, DefineConfig
 import data.utils.duckdb_utils as ddu
 import duckdb
@@ -22,7 +38,7 @@ import gc
 from pandas.api.types import is_numeric_dtype, is_bool_dtype,   is_datetime64_any_dtype, is_string_dtype, is_datetime64_dtype
 
 
-class base_model(DefineConfig):
+class base_model_helper(DefineConfig):
     def __init__(self, 
                  master_config_path, 
                  master_config_name,
@@ -57,24 +73,6 @@ class base_model(DefineConfig):
             self.db_connection = db_connection
         else:
             self.db_connection = duckdb.connect(database=self.database_path , read_only=False)
-        self.table_setup()
-
-    def table_setup(self):
-        if not ddu.check_if_table_exists(self.db_connection, table_name=self.train_training_info_table):
-            create_table_arg = {
-                'replace': True, 'table_column_arg': 
-                    'label_name  VARCHAR,training_algo VARCHAR,train_partition VARCHAR ,test_partition VARCHAR, validation_partition VARCHAR, train_data_shape VARCHAR,test_data_shape VARCHAR,validation_data_shape VARCHAR,feature_names VARCHAR,model_params VARCHAR,metrics_dict_list VARCHAR,model_file_name VARCHAR,label_mapper VARCHAR,model BLOB, feature_table_name VARCHAR,feature_selection_method VARCHAR,feature_importance_df VARCHAR,cat_non_cat_info VARCHAR,updated_timestamp TIMESTAMP'}
-            #ddu.create_table(self.db_conection, table_name=self.zip_files_table,
-            ddu.create_table(self.db_connection, table_name=self.train_training_info_table, create_table_arg=create_table_arg, df=None)
-            du.print_log(f"Table {self.train_training_info_table} created")
-
-    def upsert_feature_training_info_table(self,sql_dict):
-        curr_dt = str(dt.datetime.now())
-        sql_dict.update({'updated_timestamp':curr_dt})
-        update_where_expr = f"validation_partition = '{sql_dict['validation_partition']}' and test_partition = '{sql_dict['test_partition']}' and train_partition = '{sql_dict['train_partition']}' and feature_selection_method ='{sql_dict['feature_selection_method']}' and label_name = '{sql_dict['label_name']}'"
-        self.update_insert(sql_dict = sql_dict,
-                        table_name = self.train_training_info_table,
-                        update_where_expr=update_where_expr)
                 
     def update_insert(self,sql_dict,table_name,update_where_expr):
         sql_dict_updated = {i:j for i,j in sql_dict.items() if j is not None}
@@ -109,8 +107,109 @@ class base_model(DefineConfig):
             insert_cnt = a.fetchall()
             insert_cnt = insert_cnt[0][0] if len(insert_cnt) > 0 else 0
             du.print_log(f"Insert count is {insert_cnt}")
-                        
+    
+    def upsert_data_in_table(self,sql_dict,update_where_expr,table_name):
+        curr_dt = str(dt.datetime.now())
+        sql_dict.update({"updated_timestamp":curr_dt})
+        self.update_insert(sql_dict = sql_dict,
+                        table_name = table_name,
+                        update_where_expr=update_where_expr)
+                              
+    def create_fit_params(self):
+        print("create_fit_params function is not implemented in base")
+    
+    def already_ran_columns(self):
+        already_available_cols = []
+        print("already_ran_columns column not implemented in ml_helper. Please implement in respective specification or base class")
+        return already_available_cols
+    
+    def model_spec_info(self):
+        print("model_spec_info is not implemented in ml_helper. Implement in specification or base file")
+        
+    def set_attributes(self,
+                        feature_selection_method,
+                        only_run_for_label,
+                        forced_labels):
+        self.model_spec_info()
+        self.feature_selection_method = feature_selection_method
+        self.get_feature_selection_info(feature_selection_method=self.feature_selection_method)
+
+        print(self.feature_selection_dict)
+        
+        if len(only_run_for_label)>0:
+            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i in only_run_for_label}
+        else:
+            already_trained_labels = self.already_ran_columns()
+            print(f"Already present labels for {'.'.join(already_trained_labels)}")
+            if len(forced_labels)> 0:
+                already_trained_labels = [c for c in already_trained_labels if c not in forced_labels]
+            print(f"After filtering out forced labels, already trained labels are {'.'.join(already_trained_labels)}")
+            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i not in already_trained_labels}
+
+    def get_feature_info_df(self):
+        sql = f"select * from {self.train_feature_info_table}"
+        info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        unstable_columns = info[info['column_type']=='unstable_column']['feature_name'].tolist()
+        feature_columns = info[info['column_type']=='feature']['feature_name'].tolist()
+        return info,unstable_columns,feature_columns
+
+    def get_feature_selection_info_df(self,feature_selection_method):
+        sql = f"select * from {self.train_feature_selection_table} where feature_selection_method='{feature_selection_method}' and selection_flag = 'Y'"
+        info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        return info
+    
+    def standardize_stratified(self,df,columns):
+        for col in df:
+            if col in columns:
+                df[col] = df[col].astype(np.float)
+                df[col] = df[col].replace(np.inf, 0.0)
+                if df[col].mean() > 1000:
+                    scaler = MinMaxScaler(feature_range=(0, 10))
+                    df[col] = scaler.fit_transform(
+                        np.asarray(df[col]).reshape(-1, 1))
+                elif df[col].mean() > 100:
+                    scaler = MinMaxScaler(feature_range=(0, 5))
+                    # print(col)
+                    df[col] = scaler.fit_transform(
+                        np.asarray(df[col]).reshape(-1, 1))
+                elif df[col].mean() > 10:
+                    scaler = MinMaxScaler(feature_range=(0, 2))
+                    # print(col)
+                    df[col] = scaler.fit_transform(
+                        np.asarray(df[col]).reshape(-1, 1))
+                else:
+                    scaler = MinMaxScaler(feature_range=(0, 1))
+                    df[col] = scaler.fit_transform(
+                        np.asarray(df[col]).reshape(-1, 1))
+        return df
+    
+    def get_features_strategy(self,feature_strategy,feature_selection_method='featurewiz'):
+        info_features,unstable_columns,feature_columns = self.get_feature_info_df()
+        if feature_strategy == 'all-include-unstable-feature':
+            #info,unstable_columns,feature_columns = self.get_feature_info_df()
+            ret_features = unstable_columns + feature_columns
+        elif feature_strategy == 'all-notinclude-unstable-feature':
+            #info,unstable_columns,ret_features = self.get_feature_info_df()
+            ret_features = feature_columns
+        else:
+            ret_features = None
+        info = self.get_feature_selection_info_df(feature_selection_method)
+        return info, info_features,ret_features,unstable_columns
+    
     def get_feature_selection_info(self,feature_selection_method='featurewiz'):
+        self.info, self.info_features, features, self.unstable_columns = self.get_features_strategy(feature_strategy=self.feature_strategy,feature_selection_method=feature_selection_method)
+        self.labels = list(set(self.info['label_name'].tolist()))
+        self.feature_selection_dict ={}
+        for label in self.labels:
+            if features is None:
+                features = self.info[self.info['label_name']==label]['feature_name'].tolist()
+            features = [x.strip() for x in features]
+            mapper = self.info[self.info['label_name']==label]['label_mapper'].tolist()
+            mapper = mapper[0]
+            print(f"Number of features column are {len(features)} for label {label}")
+            self.feature_selection_dict.update({label:[features,ast.literal_eval(mapper)]})
+            
+    def get_feature_selection_info_v2(self,feature_selection_method='featurewiz'):
         sql = f"select * from {self.train_feature_selection_table} where feature_selection_method='{feature_selection_method}' and selection_flag = 'Y'"
         self.info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         print(self.info )
@@ -122,127 +221,14 @@ class base_model(DefineConfig):
             mapper = self.info[self.info['label_name']==label]['label_mapper'].tolist()
             mapper = mapper[0]
             print(f"Number of features column are {len(features)} for label {label}")
-            #print(f"Number of mapper column are {len(mapper)} for label {label}")
-            #print(mapper)
             self.feature_selection_dict.update({label:[features,ast.literal_eval(mapper)]})
-            #print("TYPE",type(ast.literal_eval(mapper)))
-            #print(mapper)
-    
-    def create_fit_params(self):
-        print("create_fit_params function is not implemented in base")
-    
-    def model_train(self,model):
-        
-        final_info = {}
-        reload_init_model = False
-        print(f"Number of features are {len(self.feature_names)}")
-        first_iteration = True
-        for col in self.feature_names:
-            print(f"\t {col}")
-        i = 0
-        for train_combination,validation_combination,test_combination in self.fold_combinations:
-            print("#"*100)
-            print(f"Training for : {train_combination}")
-            print(f"Validation for : {validation_combination}")
-            print(f"Testing for : {test_combination}")
-            self.get_train_val_data(train_filter=train_combination,
-                                    validation_filter=validation_combination,
-                                    test_filter = test_combination,
-                                    if_return_df = False)
 
-            self.create_fit_params()
-
-            print(f"Shape of train data is {self.train_data.shape}")
-            print(f"Shape of train data label is {self.train_data_label.shape}")
-            print(f"Shape of validation data is {self.validation_data.shape}")
-            print(f"Shape of validation label data is {self.validation_data_label.shape}")
-            print(f"Shape of test data is {self.test_data.shape}")
-            print(f"Shape of test data label is {self.test_data_label.shape}")
-            if reload_init_model:
-                print(f"Initializing weights with previous model")
-                self.model_fit_params.update({'init_model': model})
-                reload_init_model = True
-                print(f"Setting reload_init_model to {reload_init_model}")
-            if first_iteration:
-                feature_importance_values = np.zeros(len(self.feature_names))
-                first_iteration = False
-                print(f"Setting first_iteration to {first_iteration}")
-            model.fit(**self.model_fit_params)
-            print("MODEL ARCHITECTURE IS ")
-            print(model)
-            
-            metrics_dict_list = self.model_evaluation(model,
-                                                      test_data=self.test_data,
-                                                      actual_labels=self.test_data_label,
-                                                      label_name=self.label_name,
-                                                      features_name=None,
-                                                      test_table_name=None,
-                                                      table_filter=None,
-                                                      model_path=None,
-                                                      prob_theshold_list=self.prob_theshold_list)
-            
-            
-            final_info.update({'label_name':self.label_name})
-            final_info.update({'training_algo':'lightgbm'})
-            
-            final_info.update({'train_partition':train_combination})
-            final_info.update({'test_partition':test_combination})
-            final_info.update({'validation_partition':validation_combination})
-
-            #final_info.update({'model_fit_params':model_fit_params})
-
-            final_info.update({'train_data_shape':str(self.train_data.shape).replace(",","-").replace(" ","")})
-            final_info.update({'test_data_shape':str(self.test_data.shape).replace(",","-").replace(" ","")})
-            final_info.update({'validation_data_shape':str(self.validation_data.shape).replace(",","-").replace(" ","")})
-            feature_str="-".join(self.feature_names).replace("'","\\'").replace(",","\\,")
-            model_params = str(model_params).replace("'","\\'").replace(",","\\,")
-            #model_params = "dummy"
-            #metrics_dict_list = str(metrics_dict_list).replace("'","\\'").replace(",","\\,").replace("{","\\{").replace("}","\\}").replace("[","\\[").replace("]","\\]")
-            #model_param = str(model_param).replace("'","\\'")
-            #model_param='dummy'
-            tc = train_combination.split("_")[-1]
-            tst = test_combination.split("_")[-1]
-            vc = validation_combination.split("_")[-1]
-            metric_file_name = f"{self.train_model_base_path}metric_{self.label_name}_{tc}_{vc}_{tst}.pkl"
-
-            final_info.update({'feature_names':feature_str})
-            final_info.update({'model_params':metrics_dict_list})
-            final_info.update({'metrics_dict_list':metric_file_name})
-
-            
-            model_file_name = f"{self.train_model_base_path}model_{self.label_name}_{tc}_{vc}_{tst}.pkl"
-            final_info.update({'model_file_name':model_file_name})
-            final_info.update({'label_mapper':self.label_mapper})
-
-            feature_importance_values += model.feature_importances_ 
-            
-            feature_imp = pd.DataFrame(sorted(zip(model.feature_importances_,self.feature_names)), columns=['Value','Feature'])
-            print(feature_imp)
-            final_info.update({'model':'dummy'})
-            final_info.update({'feature_table_name':self.feature_table_name})
-            final_info.update({'feature_selection_method':self.feature_selection_method})
-            final_info.update({'feature_importance_df':'dummy'})
-            final_info.update({'cat_non_cat_info':self.cat_non_cat_info})
-            
-            self.upsert_feature_training_info_table(final_info)
-            print(f" BEST MODEL SCORE FOR THIS ITERATION IS : {model.best_score_}")
-    
-            print("#"*100)
-            print(f" MODEL SAVE AT LOCATION : {model_file_name}")
-            self.save_pickle_obj(model_file_name,model)
-            self.save_pickle_obj(metric_file_name,metrics_dict_list)
-            i = i+1
-
-        feature_importance_values = feature_importance_values/i
-        feature_importances = pd.DataFrame({'feature': self.feature_names, 'importance': feature_importance_values})
-        fi_file_name = f"{self.train_model_base_path}feature_imp_{self.label_name}.csv"
-        print(feature_importances)
-        feature_importances.to_csv(fi_file_name)
-        gc.enable()
-        del model
-        print(f" MODEL OBJECT THRASHED")
-        gc.collect()
-            
+    def get_prev_tuned_data(self):
+        sql = f"select * from {self.train_tuning_info_table}"
+        info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        col_list = list(info['label_name'].unique())
+        return col_list
+      
     def get_prev_trained_data(self):
         sql = f"select * from {self.train_training_info_table}"
         info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
@@ -255,73 +241,25 @@ class base_model(DefineConfig):
         best_param = ast.literal_eval(info['best_tuned_parameters'].loc[0])
         print(f"Extracted parameter is {best_param}")
         return best_param
-    
-    def create_model(self,model_params):
-        print("Method not implemented in base class")
-        model = None
-        return model
-    
-    def model_spec_info(self):
-        self.algo_name = 'none'
-        self.tuning_type = 'none'
-     
+        
     def initialize_dtype_info(self):
         get_index = random.randrange(len(self.fold_combinations))
         filter = self.fold_combinations[get_index][0]
-        sql = f"select {','.join(self.feature_names)} from {self.train_feature_table} where time_split = '{filter}' and {self.label_name} != 'unknown'"
-        print("Training data extract sql is :")
+        #sql = f"select {','.join(self.feature_names)} from {self.train_feature_table} where time_split = '{filter}' and {self.label_name} != 'unknown'"
+        sql = self.create_sql_for_data_creation(filter=filter)
+        print("Check data extract sql is :")
+        print(sql)
         check_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        check_data.replace([np.inf, -np.inf], np.nan, inplace=True)
+        self.null_cols = du.checknans(check_data, threshold=100)
+        print(f"Null columns detected are {self.null_cols}")
+        #data = data.drop(null_cols, axis=1)
         self.cat_non_cat_info,self.cat_cols,self.cat_index = self.get_cat_nocat_col(check_data,label_name=self.label_name,cat_threshold=100)
-        for i,j in self.cat_non_cat_info.items():
-            print(f"column {i} ............ info : {j}")
-        print(f"Number of categorical columns are : {self.cat_cols}")
-
-    def train_all_labels(self,
-                         model_fit_params,
-                      prob_theshold_list=None,
-                      model_params=None,
-                      only_run_for_label = [],
-                      force_training_labels = [],
-                      feature_selection_method='featurewiz'):
-        self.get_feature_selection_info(feature_selection_method=feature_selection_method)
-        self.model_params = model_params
-        self.model_fit_params = model_fit_params
-        print(self.feature_selection_dict)
-        self.feature_selection_method = feature_selection_method
-        self.model_spec_info()
-        if len(only_run_for_label)>0:
-            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i in only_run_for_label}
-        else:
-            #if forced_label_name is not None:
-            #    self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i==forced_label_name}
-            already_trained_labels = self.get_prev_trained_data()
-            if len(force_training_labels)> 0:
-                already_trained_labels = [c for c in already_trained_labels if c not in force_training_labels]
-            print(f"Already present labels for {'.'.join(already_trained_labels)}")
-            self.feature_selection_dict = {i:j for i,j in self.feature_selection_dict.items() if i not in already_trained_labels}
-        if prob_theshold_list is not None:
-            self.prob_theshold_list = prob_theshold_list
-     
-        if len(self.feature_selection_dict) > 0:
-            for label_name,feature_map_list in self.feature_selection_dict.items():
-                print(f"************* MODEL TRAINING STARTS FOR {label_name} ***************")
-                
-                self.label_name = label_name
-                self.feature_names = feature_map_list[0]
-                self.label_mapper=feature_map_list[1]
-                if self.model_params is None:
-                    self.model_params = self.get_params_trained_data(label_name,self.feature_selection_method,self.algo_name,self.tuning_type)
-                
-                self.fold_combinations=self.get_label_combination(scramble_all=True,comb_diff=3,select_value=4)
-                self.initialize_dtype_info()
-                model = self.create_model(self.model_params)
-                self.model_train(model)
-
-                print(f"************* MODEL TRAINING COMPLETED FOR {label_name} ***************")
-        else:
-            print(f"feature_selection_dict is empty {self.feature_selection_dict}. No training will start")
-
-                
+        #for i,j in self.cat_non_cat_info.items():
+        #    print(f"column {i} ............ info : {j}")
+        print(f"Number of categorical columns are : {len(self.cat_cols)}")
+        print(f"Categorical columns are : {self.cat_cols}")
+      
     def save_pickle_obj(self,pickle_file_path,pickle_obj):
         with open(pickle_file_path, 'wb') as f:
             pickle.dump(pickle_obj, f)   
@@ -331,13 +269,21 @@ class base_model(DefineConfig):
             pickle_obj = pickle.load(f)
         return pickle_obj
     
-    def load_data_from_sql(self,sql,feature_names,label_name,label_mapper):
+    def load_data_from_sql(self,sql,feature_names,label_name,label_mapper,data_scamble=False,sampling_fraction=1):
         data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         data.replace([np.inf, -np.inf], np.nan, inplace=True)
+        print(f"Size of data before row null removal is {data.shape}")
+        null_cols = du.checknans(data, threshold=100)
+        print(f"Null columns are {null_cols}")
+        #data = data.drop(null_cols, axis=1)
         data = data.dropna()
+        print(f"Size of data after row null removal is {data.shape}")
+        if data_scamble:
+            data = data.sample(frac=sampling_fraction)
         print("Data label distibution is :")
         print(data[label_name].value_counts())
         data_label = data[[label_name]]
+        #feature_names = [col for col in feature_names if col not in null_cols]
         data = data[feature_names]
         data_label[label_name] = data_label[label_name].map(label_mapper)
 
@@ -386,8 +332,19 @@ class base_model(DefineConfig):
             cat_index.append(index_no)
         return info_dict,cat_columns,cat_index
      
-    def convert_col_to_dtype(self,cols,dtype='category'):
+    def convert_col_to_dtype(self,cols,check_first_dtype='float',convert_first_dtype='int',dtype='category'):
+        print(self.train_data[cols].dtypes)
         for c in cols:
+            print(f"............. {self.train_data[c].dtype}")
+            if self.train_data[c].dtype == check_first_dtype:
+                self.train_data[c] = self.train_data[c].astype(convert_first_dtype)
+                #print(f"########## {self.train_data[c].dtype}")
+            if self.test_data[c].dtype == check_first_dtype:
+                self.test_data[c] = self.test_data[c].astype(convert_first_dtype)
+                #print(f"########## {self.test_data[c].dtype}")
+            if self.validation_data[c].dtype == check_first_dtype:
+                self.validation_data[c] = self.validation_data[c].astype(convert_first_dtype)
+                #print(f"########## {self.validation_data[c].dtype}")
             print(f"Converting column {c} to {dtype} in train, test and validation dataset")
             self.train_data[c] = self.train_data[c].astype(dtype)
             self.test_data[c] = self.test_data[c].astype(dtype)
@@ -402,28 +359,78 @@ class base_model(DefineConfig):
         
         self.validation_data = np.array(self.validation_data)
         self.validation_data_label = np.array(self.validation_data_label)        
-            
+
+    def convert_to_standardize(self):
+        if self.standardize_strategy == 'all':
+            standardize_col = self.feature_names
+        elif self.standardize_strategy == 'only-unstable':
+            standardize_col = self.unstable_columns
+        else:
+            standardize_col = self.feature_names
+        print(f"Length of standardized column is {len(standardize_col)}")
+        if len(standardize_col) > 0:
+            self.train_data = self.standardize_stratified(self.train_data,standardize_col)
+            self.validation_data = self.standardize_stratified(self.validation_data,standardize_col)
+            self.train_data = self.standardize_stratified(self.train_data,standardize_col)
+        print("Standardization completed")
+        
+    def create_sql_for_data_creation(self,filter):
+        if isinstance(filter,list):
+            sql_filter_string = "','".join(filter)
+            sql_filter_string = f"'{sql_filter_string}'"
+            sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split in ({sql_filter_string}) and {self.label_name} != 'unknown'"
+        else:
+            sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{filter}' and {self.label_name} != 'unknown'"
+        return sql
+    
+    def get_combination_with_strategy(self,scramble_all=False,comb_diff=3,select_value=4,stride=2,strategy='chunking'):
+        combinations = self.get_label_combination(scramble_all=scramble_all,comb_diff=comb_diff,select_value=select_value)
+        final_combination=[]
+        if strategy=='chunking':
+            combinations_t = np.array(combinations)
+            combinations_t = combinations_t.T
+            final_combination = []
+            j = 0
+            #stride = 2
+            chunks = int(combinations_t.shape[1]/stride)
+            for i in range(chunks):
+                final_combination.append([list(combinations_t[i][j:j+stride]) for i in range(0,3)])
+                j = j + stride
+            return final_combination
+        else:
+            return combinations
+   
     def get_train_val_data(self,
                             train_filter,
                             validation_filter,
                             test_filter,
-                            if_return_df = False):
+                            train_data_scamble=True,
+                            train_sampling_fraction=1,
+                            validation_data_scamble=True,
+                            validation_sampling_fraction=1):
     
-        sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{train_filter}' and {self.label_name} != 'unknown'"
+        #sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{train_filter}' and {self.label_name} != 'unknown'"
+        sql = self.create_sql_for_data_creation(train_filter)
         print("Training data extract sql is :")
         print(sql)
         self.train_data,self.train_data_label = self.load_data_from_sql(sql,self.feature_names,
                                                                         self.label_name,
-                                                                        self.label_mapper)
+                                                                        self.label_mapper,
+                                                                        data_scamble=train_data_scamble,
+                                                                        sampling_fraction=train_sampling_fraction)
 
-        sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{validation_filter}'  and {self.label_name} != 'unknown'"
+        #sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{validation_filter}'  and {self.label_name} != 'unknown'"
+        sql = self.create_sql_for_data_creation(validation_filter)
         print("Validation data extract sql is :")
         print(sql)
         self.validation_data,self.validation_data_label = self.load_data_from_sql(sql,self.feature_names,
                                                                                   self.label_name,
-                                                                                  self.label_mapper)
+                                                                                  self.label_mapper, 
+                                                                                  data_scamble=validation_data_scamble,
+                                                                                  sampling_fraction=validation_sampling_fraction)
 
-        sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{test_filter}'  and {self.label_name} != 'unknown'"
+        #sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{test_filter}'  and {self.label_name} != 'unknown'"
+        sql = self.create_sql_for_data_creation(test_filter)
         print("Testing data extract sql is :")
         print(sql)
         self.test_data,self.test_data_label = self.load_data_from_sql(sql,self.feature_names,
@@ -433,9 +440,10 @@ class base_model(DefineConfig):
         if self.convert_to_cat:
             self.convert_col_to_dtype(cols=self.cat_cols,dtype='category')
         
-        if not if_return_df:
+        if not self.if_return_df:
             self.convert_to_arrays()
-                        
+        if self.standardize_strategy is not None:
+            self.convert_to_standardize()             
         print(f'Training Data Shape: {self.train_data.shape}.... type of object is {type(self.train_data)}' )
         print(f'Validation Data Shape: {self.validation_data.shape}.... type of object is {type(self.validation_data)}' )
         print(f'Testing Data Shape: {self.test_data.shape}.... type of object is {type(self.test_data)}' )
@@ -496,11 +504,7 @@ class base_model(DefineConfig):
                                             test_split=test_split,
                                             comb_diff=comb_diff,
                                             select_value=select_value)
-        #for i in range(len(train_split)):
-        #  try:
-        #    comb_list.append([train_split[i],validation_split[i],test_split[i]])
-        #  except Exception as e:
-        #    print(f"Error {e}")
+
         return comb_list
 
     def model_prediction(self,model,test_data,predict_mode='proba',model_path=None):
@@ -651,3 +655,4 @@ class base_model(DefineConfig):
         #metrics_dict2 = get_metrics(th_actual_labels,th_preds_predict,th_preds_proba)
 
         return metrics_dict_list
+

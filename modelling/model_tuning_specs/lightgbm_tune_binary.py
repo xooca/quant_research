@@ -25,6 +25,7 @@ import gc
 from optuna.integration import LightGBMPruningCallback
 
 
+
 class tuner_model(base_model_tuning):
                  
     def __init__(self,
@@ -49,9 +50,9 @@ class tuner_model(base_model_tuning):
     
     def get_search_space(self,trial):
         param = {
-            "objective": 'multiclass',
+            "objective": 'binary',
             "n_estimators": trial.suggest_int("n_estimators", 200, 5000),
-            "metric": "None",
+            "metric": "auc",
             "boosting": "gbdt",
             #"learning_rate" : trial.suggest_loguniform('learning_rate', 0.01, 0.3),
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3),
@@ -72,12 +73,13 @@ class tuner_model(base_model_tuning):
         return param 
     
 
+        
     def define_and_train_model(self,trial,param,train_data,train_data_label,validation_data,validation_data_label):
-        def evaluate_macroF1_lgb(truth, predictions):  
+        def evaluate_f1score(truth, predictions):  
             # this follows the discussion in https://github.com/Microsoft/LightGBM/issues/1483
-            pred_labels = predictions.reshape(len(np.unique(truth)),-1).argmax(axis=0)
-            f1 = f1_score(truth, pred_labels, average='macro')
-            return ('macroF1', f1, True) 
+            pred_labels = np.rint(predictions)
+            f1 = f1_score(truth, pred_labels)
+            return ('F1', f1, True) 
         
         model = lgb.LGBMClassifier(**param)
             #model.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=0, early_stopping_rounds=100,callbacks=[
@@ -87,35 +89,44 @@ class tuner_model(base_model_tuning):
                   #eval_set=[(validation_data, validation_data_label),(train_data, train_data_label)],
                   eval_set=[(validation_data, validation_data_label)],
                   #eval_names=['valid','train'],
-                  verbose=100, early_stopping_rounds=100,eval_metric=evaluate_macroF1_lgb,
+                  verbose=100, early_stopping_rounds=100,eval_metric=[evaluate_f1score,'auc'],
                   callbacks=[
-                    LightGBMPruningCallback(trial, "macroF1")
+                    LightGBMPruningCallback(trial, "F1")
                 ])
         return model
     
     def evaluate_model(self,model,test_data,test_data_label):
+        test_data_label = np.array(test_data_label)
+        test_data_label = np.squeeze(test_data_label)
         preds = model.predict(test_data)
+        preds_prob = model.predict_proba(test_data)[:, 1]
+        #preds_prob = np.max(preds_prob,axis=1)
         pred_labels = np.rint(preds)
         accuracy = accuracy_score(test_data_label, pred_labels)
-        f1 = f1_score(test_data_label, pred_labels,average='macro')
+        f1 = f1_score(test_data_label, pred_labels)
+        print(test_data_label)
+        print(preds_prob)        
+        auc_score = roc_auc_score(test_data_label, preds_prob)
 
         print(f"ACCURACY VALUE IS {accuracy}")
+        print(f"AUC VALUE IS {auc_score}")
         print(f"F1 VALUE IS {f1}")
         #metric_val = precision_score(test_data_label, pred_labels,labels=[1,2],average='macro')
-        metric_val = precision_score(test_data_label, pred_labels,average='macro')
-        print(f"METRIC VALUE IS {metric_val}")
-        return f1
-            
+        metric_val = precision_score(test_data_label, pred_labels)
+        print(f"PRECISION VALUE IS {metric_val}")
+        return auc_score
+
+
     def initialize_tuning_type(self):
         self.tuning_type = 'optuna'
         self.algo_name = 'lightgbm'
         
     def define_and_run_study(self):
-        study = optuna.create_study(direction='maximize', study_name="lightgbmtune",)
+        study = optuna.create_study(direction='maximize', study_name="lightgbmtune_binary",)
         study.optimize(self.objective_function, n_trials=35) 
         print(study.best_trial)
         print( study.best_trial.user_attrs)
         #best_model = study.best_trial.user_attrs['model']
         best_model=None
-        return best_model,dict(study.best_trial.params)
+        return best_model,study.best_trial.params
         

@@ -13,6 +13,7 @@ class execute_training_pipeline:
                  train_feature_selection_table=None,
                  train_feature_info_table=None,
                  train_training_info_table=None,
+                 train_tuning_info_table=None,
                  verbose=True):
 
         
@@ -28,12 +29,21 @@ class execute_training_pipeline:
                                                                             train_feature_selection_table=train_feature_selection_table,
                                                                             train_feature_info_table=train_feature_info_table,
                                                                             train_training_info_table=train_training_info_table,
+                                                                            train_tuning_info_table=train_tuning_info_table,
                                                                             verbose=verbose)
 
-    def run_pipelines(self,model_params,model_fit_params,prob_theshold_list=None,forced_label_name = None,feature_selection_method='featurewiz'):
-        self.training_pipeline.train_all_labels(model_params,model_fit_params,
+    def run_pipelines(self,
+                      model_fit_params,
+                      prob_theshold_list=None,
+                      model_params=None,
+                      only_run_for_label = [],
+                      force_training_labels = [],
+                      feature_selection_method='featurewiz'):
+        self.training_pipeline.train_all_labels(model_fit_params=model_fit_params,
                                                 prob_theshold_list=prob_theshold_list,
-                                                forced_label_name = forced_label_name,
+                                                model_params=model_params,
+                                                only_run_for_label = only_run_for_label,
+                                                force_training_labels = force_training_labels,
                                                 feature_selection_method=feature_selection_method)
         
 

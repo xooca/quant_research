@@ -46,7 +46,7 @@ class base_model_tuning(DefineConfig):
         du.print_log(f"Table name is {self.train_tuning_info_table}")
         if not ddu.check_if_table_exists(self.db_connection, table_name=self.train_tuning_info_table):
             create_table_arg = {
-                'replace': True, 'table_column_arg': 'label_name VARCHAR,feature_selection_method VARCHAR,feature_names VARCHAR ,algo_name VARCHAR, tuning_type VARCHAR, best_tuned_parameters DOUBLE, parameter_tune_info VARCHAR,updated_timestamp TIMESTAMP'}
+                'replace': True, 'table_column_arg': 'label_name VARCHAR,feature_selection_method VARCHAR,feature_names VARCHAR ,algo_name VARCHAR, tuning_type VARCHAR, best_tuned_parameters VARCHAR, parameter_tune_info VARCHAR,updated_timestamp TIMESTAMP'}
             #ddu.create_table(self.db_conection, table_name=self.zip_files_table,
             ddu.create_table(self.db_connection, table_name=self.train_tuning_info_table, create_table_arg=create_table_arg, df=None)
             du.print_log(f"Table {self.train_tuning_info_table} created")
@@ -63,6 +63,9 @@ class base_model_tuning(DefineConfig):
                         update_where_expr=update_where_expr)
         
     def upsert_tuning_info_table(self,sql_dict):
+        curr_dt = str(dt.datetime.now())
+        #sql_dict.update({"updated_timestamp":curr_dt})
+        sql_dict['updated_timestamp'] = curr_dt
         update_where_expr = f"label_name = '{sql_dict.get('label_name')}' and feature_selection_method ='{sql_dict.get('feature_selection_method')}' and algo_name ='{sql_dict.get('algo_name')}' and tuning_type ='{sql_dict.get('tuning_type')}' "
         self.update_insert(sql_dict = sql_dict,
                 table_name = self.train_tuning_info_table,
@@ -70,7 +73,7 @@ class base_model_tuning(DefineConfig):
                 
     def update_insert(self,sql_dict,table_name,update_where_expr):
         sql_dict_updated = {i:j for i,j in sql_dict.items() if j is not None}
-        l = [f"{i}={j}" if (isinstance(j,int) or isinstance(j,float) or isinstance(j,dict) ) else f"{i}='{j}'"for i,j in sql_dict_updated.items()]
+        l = [f"{i}={j}" if (isinstance(j,int) or isinstance(j,float) or isinstance(j,dict) or isinstance(j,list)) else f"{i}='{j}'"for i,j in sql_dict_updated.items()]
         l = ",".join(l)
         sql = f'''
         UPDATE {table_name}
@@ -219,6 +222,8 @@ class base_model_tuning(DefineConfig):
                                             'label_mapper':feature_map_list[1],
                                             'limit':limit
                                             } 
+                print("MODEL TUNE DICT IS :")
+                print(model_tune_dict)
                 self.model_tune(model_tune_dict)
                                             
         else:
@@ -229,26 +234,26 @@ class base_model_tuning(DefineConfig):
                             if_return_df = False):
     
         sql = f"select {','.join(feature_names)},{label_name} from {self.train_feature_table} where time_split = '{train_filter}' and {label_name} != 'unknown'"
-        print("Training data extract sql is :")
-        print(sql)
+        #print("Training data extract sql is :")
+        #print(sql)
         train_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         train_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         train_data = train_data.dropna()
-        print("Train Data label distibution is :")
-        print(train_data[label_name].value_counts())
+        #print("Train Data label distibution is :")
+        #print(train_data[label_name].value_counts())
         train_data_label = train_data[[label_name]]
         train_data = train_data[feature_names]
         
         train_data_label[label_name] = train_data_label[label_name].map(label_mapper)
 
         sql = f"select {','.join(feature_names)},{label_name} from {self.train_feature_table} where time_split = '{validation_filter}'  and {label_name} != 'unknown'"
-        print("Validation data extract sql is :")
-        print(sql)
+        #print("Validation data extract sql is :")
+        #print(sql)
         validation_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         validation_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         validation_data = validation_data.dropna()
-        print("Validation Data label distibution is :")
-        print(validation_data[label_name].value_counts())
+        #print("Validation Data label distibution is :")
+        #print(validation_data[label_name].value_counts())
         validation_data_label = validation_data[[label_name]]
         validation_data = validation_data[feature_names]
         
@@ -256,22 +261,22 @@ class base_model_tuning(DefineConfig):
 
 
         sql = f"select {','.join(feature_names)},{label_name} from {self.train_feature_table} where time_split = '{test_filter}'  and {label_name} != 'unknown'"
-        print("Testing data extract sql is :")
-        print(sql)
+        #print("Testing data extract sql is :")
+        #print(sql)
         test_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         test_data.replace([np.inf, -np.inf], np.nan, inplace=True)
         test_data = test_data.dropna()
 
-        print("Test Data label distibution is :")
-        print(test_data[label_name].value_counts())
+        #print("Test Data label distibution is :")
+        #print(test_data[label_name].value_counts())
         test_data_label = test_data[[label_name]]
         test_data = test_data[feature_names]
         
         test_data_label[label_name] = test_data_label[label_name].map(label_mapper)
         
-        print('Training Data Shape: ', train_data.shape)
-        print('Validation Data Shape: ', validation_data.shape)
-        print('Testing Data Shape: ', test_data.shape)
+        #print('Training Data Shape: ', train_data.shape)
+        #print('Validation Data Shape: ', validation_data.shape)
+        #print('Testing Data Shape: ', test_data.shape)
         if if_return_df is False:
             train_data = np.array(train_data)
             train_data_label = np.array(train_data_label)
@@ -284,27 +289,36 @@ class base_model_tuning(DefineConfig):
     def initialize_tuning_type(self):
         self.tuning_type = 'none'
         self.algo_name = 'none'
-        
+    
+
     def model_tune(self,model_tune_dict):
-        print(model_tune_dict)
-        self.selected_folds = random.sample(list(set(model_tune_dict['fold_combinations'])), model_tune_dict['limit'])  
+        print(model_tune_dict['fold_combinations'])
+        if len(model_tune_dict['fold_combinations']) <= model_tune_dict['limit']:
+            limit_val = len(model_tune_dict['fold_combinations'])
+        else:
+            limit_val = model_tune_dict['limit']
+        self.selected_folds = random.sample(model_tune_dict['fold_combinations'], limit_val)  
         self.selected_feature_names = model_tune_dict['feature_names']
         self.selected_label_name= model_tune_dict['label_name']
         self.selected_label_mapper = model_tune_dict['label_mapper']
         
         best_model,best_param = self.define_and_run_study()
         self.initialize_tuning_type()
-        
+        #best_param = {i:str(j) for i,j in best_param.items()}
+        modelbestparam_file_name = f"{self.train_model_base_path}bestmodelparam_{self.selected_label_name}.pkl"
+
         return_dict = {"label_name":self.selected_label_name,"feature_selection_method":self.feature_selection_method,
-                       "feature_names":self.selected_feature_names,"algo_name":self.algo_name,"tuning_type":self.tuning_type,
-                       "best_tuned_parameters":best_param,"parameter_tune_info":model_tune_dict}
+                       "feature_names":"None","algo_name":self.algo_name,"tuning_type":self.tuning_type,
+                       "best_tuned_parameters":best_param,"parameter_tune_info":"None"}
         self.upsert_tuning_info_table(return_dict)
-        model_file_name = f"{self.train_model_base_path}bestmodel_{self.selected_label_name}.pkl"
-        self.save_pickle_obj(model_file_name,best_model)
+        #model_file_name = f"{self.train_model_base_path}bestmodel_{self.selected_label_name}.pkl"
+
+        #if best_model is not None:
+        self.save_pickle_obj(modelbestparam_file_name,best_param)
 
         gc.enable()  
-        del self.selected_folds,self.selected_feature_names,self.selected_label_name,self.selected_label_mapper,best_model
-        gc.collect()  
+        del self.selected_folds,self.selected_feature_names,self.selected_label_name,self.selected_label_mapper
+        gc.collect()
     
     def define_and_run_study(self):
         print(f"define_and_run_study not implemented in base class")
@@ -350,4 +364,5 @@ class base_model_tuning(DefineConfig):
         del train_data,train_data_label,validation_data,validation_data_label,test_data,test_data_label
         gc.collect()
         mean_metric = np.mean(metric_values)
+        print(f"FINAL METRIC IS {mean_metric}")
         return mean_metric

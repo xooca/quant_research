@@ -74,8 +74,12 @@ class feature_selection(base_feature_selection):
         
         sfs = sfs.fit(df_features[cols], df_features[label])
         selected_features= list(sfs.k_feature_names_)
+        null_cols = du.checknans(df_features, threshold=100)
+        selected_features = [col for col in selected_features if col not in null_cols]
         print(f"For label name {label}")
         print(sfs.subsets_)
         print(f"best combination {sfs.k_score_}, {sfs.k_feature_idx_}")
-
-        return selected_features
+        ret_dict = {}
+        for col in selected_features:
+            ret_dict.update({col:0.0})
+        return ret_dict

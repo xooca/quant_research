@@ -105,7 +105,58 @@ class tuner_model(base_model_tuning):
         metric_val = precision_score(test_data_label, pred_labels,average='macro')
         print(f"METRIC VALUE IS {metric_val}")
         return f1
-            
+    
+    def get_train_val_data(self,feature_names,label_name,label_mapper,
+                            train_filter=None,validation_filter=None,test_filter=None,
+                            if_return_df = False):
+
+        sql = f"select distinct time_split from {self.train_feature_table}"
+        time_split_df = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        time_splits = [col for col in time_split_df['time_split'].tolist() if str(col) != 'nan']
+        buffer1_split = [col for col in time_splits if 'buffer1' in col]
+        buffer2_split = [col for col in time_splits if 'buffer2' in col]
+        reject_split = buffer1_split + buffer2_split
+
+        sql = f'''
+        select {','.join(feature_names)},{label_name} from {self.train_feature_table} 
+        where time_split not in (\'{"','".join(reject_split)}\') 
+        and {label_name} != 'unknown'
+        '''
+        #print("Training data extract sql is :")
+        #print(sql)
+        train_data = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
+        train_data.replace([np.inf, -np.inf], np.nan, inplace=True)
+        train_data = train_data.dropna()
+        train_data = train_data.sample(frac = 1)
+
+        #print("Train Data label distibution is :")
+        #print(train_data[label_name].value_counts())
+        train_data_label = train_data[[label_name]]
+        train_data = train_data[feature_names]
+        
+        train_data_label[label_name] = train_data_label[label_name].map(label_mapper)
+        return train_data,train_data_label
+
+    def objective_function(self,trial):
+        train_data,train_data_label = self.get_train_val_data(feature_names=self.selected_feature_names,
+                                                              label_name=self.selected_label_name,
+                                                              label_mapper=self.selected_label_mapper)
+        
+        train_data, train_data_label, validation_data, validation_data_label = train_test_split(train_data,
+                                                                                    train_data_label,stratify=train_data_label[self.selected_label_name])
+        param = self.get_search_space(trial)    
+        model = self.define_and_train_model(trial,param,train_data,train_data_label,validation_data,validation_data_label)
+        
+        metric_val = self.evaluate_model(model,test_data,test_data_label)
+
+        gc.enable()
+        del train_data,train_data_label,validation_data,validation_data_label,test_data,test_data_label
+        gc.collect()
+        mean_metric = np.mean(metric_values)
+        print(f"FINAL METRIC IS {mean_metric}")
+        return mean_metric
+    
+
     def initialize_tuning_type(self):
         self.tuning_type = 'optuna'
         self.algo_name = 'lightgbm'

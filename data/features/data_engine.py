@@ -2888,7 +2888,11 @@ class feature_mart(DefineConfig):
         def lookback_min_max(vals):
             offset = len(vals)//self.lookback_divider
             return min(np.array(vals)[offset+1:])-max(np.array(vals)[0:offset+1])
-        
+
+        def lookback_sum(vals):
+            offset = len(vals)//self.lookback_divider
+            return sum(np.array(vals)[offset+1:])-sum(np.array(vals)[0:offset+1])
+                
         col_name = f'ROLLLBC_{column}_{window}_{min_periods}_{self.lookback_divider}_MINMAX'.replace('-','_minus_')
         
         if tmpdf is None:
@@ -2956,6 +2960,228 @@ class feature_mart(DefineConfig):
             return tmpdf
         del tmpdf, merge_dict
 
+    def rolling_stats_lookback_compare_offset(self, func_dict_args, tmpdf=None, return_df=False):
+        # rolling_stats_lookback_compare_args = {'column_name': col, 'window': window, 'min_periods': None,'lookback_divider':2}
+        print_log("*"*100)
+        print_log(
+            f"rolling_stats_lookback_compare_offset called with arguments {func_dict_args}")
+
+        column = func_dict_args.get('column_name')
+        window = func_dict_args.get('window')
+        min_periods = func_dict_args.get('min_periods')
+        self.offset = func_dict_args.get('offset')
+        self.lookback_divider = func_dict_args.get('lookback_divider')
+
+        def lookback_diff(vals):
+            res = (np.array(vals)[self.offset]-np.array(vals)[-1]
+                   ) - (np.array(vals)[0]-np.array(vals)[self.offset])
+            return res
+
+        def lookback_max(vals):
+            return max(np.array(vals)[self.offset+1:])-max(np.array(vals))
+
+        def lookback_min(vals):
+            return min(np.array(vals)[self.offset+1:])-min(np.array(vals))
+
+        def lookback_mean(vals):
+            return np.array(vals)[self.offset+1:].mean()-np.array(vals).mean()
+
+        def lookback_max_min(vals):
+            return max(np.array(vals)[self.offset+1:])-min(np.array(vals))
+
+        def lookback_min_max(vals):
+            return min(np.array(vals)[self.offset+1:])-max(np.array(vals))
+
+        def lookback_sum(vals):
+            return sum(np.array(vals)[self.offset+1:])-sum(np.array(vals))
+                
+        col_name = f'ROLLLBC_{column}_{window}_{min_periods}_{self.lookback_divider}_MINMAX'.replace('-','_minus_')
+        
+        if tmpdf is None:
+            tmpdf = self.get_ohlc_df(column_name=col_name)
+            if tmpdf is None:
+                return
+        max_date,min_date = self.get_min_max_date(tmpdf)
+        merge_dict = {}
+        column_list = []
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_diff':
+            func_dict_args.update({'lookback_func':'lookback_diff'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_DIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_diff)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare_offset',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_max':
+            func_dict_args.update({'lookback_func':'lookback_max'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MAXDIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_max)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare_offset',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_min':
+            func_dict_args.update({'lookback_func':'lookback_min'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MINDIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_min)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare_offset',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_mean':
+            func_dict_args.update({'lookback_func':'lookback_mean'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MEANDIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_mean)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare_offset',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_max_min':
+            func_dict_args.update({'lookback_func':'lookback_max_min'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MAXMIN'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_max_min)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare_offset',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_min_max':
+            func_dict_args.update({'lookback_func':'lookback_min_max'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MINMAX'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_min_max)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare_offset',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+ 
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_sum':
+            func_dict_args.update({'lookback_func':'lookback_sum'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_SUM'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_sum)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare_offset',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+                   
+        tmpdf = pd.concat([tmpdf, pd.concat(merge_dict, axis=1)], axis=1)
+        #tmpdf = self.remove_ohlc_cols(tmpdf)
+        tmpdf = self.keep_timestamp_feature_cols(tmpdf, cols=column_list)
+        self.create_column_and_save_to_table(
+            time_stamp_col='timestamp', data=tmpdf)
+        if return_df:
+            return tmpdf
+        del tmpdf, merge_dict
+
+    def rolling_stats_lookback_compare_offset_two_col(self, func_dict_args, tmpdf=None, return_df=False):
+        # rolling_stats_lookback_compare_args = {'column_name': col, 'window': window, 'min_periods': None,'lookback_divider':2}
+        print_log("*"*100)
+        print_log(
+            f"rolling_stats_lookback_compare called with arguments {func_dict_args}")
+
+        column1 = func_dict_args.get('column_name1')
+        column2 = func_dict_args.get('column_name2')
+        window = func_dict_args.get('window')
+        min_periods = func_dict_args.get('min_periods')
+        self.offset = func_dict_args.get('offset')
+        self.lookback_divider = func_dict_args.get('lookback_divider')
+
+        def lookback_diff(vals):
+            res = (np.array(vals)[self.offset]-np.array(vals)[-1]
+                   ) - (np.array(vals)[0]-np.array(vals)[self.offset])
+            return res
+
+        def lookback_max(vals):
+            return max(np.array(vals)[self.offset+1:])-max(np.array(vals))
+
+        def lookback_min(vals):
+            return min(np.array(vals)[self.offset+1:])-min(np.array(vals))
+
+        def lookback_mean(vals):
+            return np.array(vals)[self.offset+1:].mean()-np.array(vals).mean()
+
+        def lookback_max_min(vals):
+            return max(np.array(vals)[self.offset+1:])-min(np.array(vals))
+
+        def lookback_min_max(vals):
+            return min(np.array(vals)[self.offset+1:])-max(np.array(vals))
+
+        def lookback_sum(vals):
+            return sum(np.array(vals)[self.offset+1:])-sum(np.array(vals))
+                
+        col_name = f'ROLLLBC_{column}_{window}_{min_periods}_{self.lookback_divider}_MINMAX'.replace('-','_minus_')
+        
+        if tmpdf is None:
+            tmpdf = self.get_ohlc_df(column_name=col_name)
+            if tmpdf is None:
+                return
+        max_date,min_date = self.get_min_max_date(tmpdf)
+        merge_dict = {}
+        column_list = []
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_diff':
+            func_dict_args.update({'lookback_func':'lookback_diff'})
+            col_name = f'ROLLOFF_{column1}_{column2}_{window}_{min_periods}_{self.lookback_divider}_DIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[[column1,column2]].rolling(window, min_periods=min_periods).apply(lookback_diff)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_max':
+            func_dict_args.update({'lookback_func':'lookback_max'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MAXDIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_max)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_min':
+            func_dict_args.update({'lookback_func':'lookback_min'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MINDIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_min)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_mean':
+            func_dict_args.update({'lookback_func':'lookback_mean'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MEANDIFF'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_mean)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_max_min':
+            func_dict_args.update({'lookback_func':'lookback_max_min'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MAXMIN'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_max_min)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+        
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_min_max':
+            func_dict_args.update({'lookback_func':'lookback_min_max'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MINMAX'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_min_max)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+ 
+        if func_dict_args.get('lookback_func') is None or func_dict_args.get('lookback_func') == 'lookback_sum':
+            func_dict_args.update({'lookback_func':'lookback_sum'})
+            col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_SUM'.replace('-','_minus_')
+            merge_dict.update({col_name: tmpdf[column].rolling(window, min_periods=min_periods).apply(lookback_sum)})
+            self.save_feature_info(function_name='rolling_stats_lookback_compare',feature_name=col_name,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            column_list.append(col_name)
+            print_log(f"{col_name} completed")
+                   
+        tmpdf = pd.concat([tmpdf, pd.concat(merge_dict, axis=1)], axis=1)
+        #tmpdf = self.remove_ohlc_cols(tmpdf)
+        tmpdf = self.keep_timestamp_feature_cols(tmpdf, cols=column_list)
+        self.create_column_and_save_to_table(
+            time_stamp_col='timestamp', data=tmpdf)
+        if return_df:
+            return tmpdf
+        del tmpdf, merge_dict
+
+        
     def rolling_previous_day_range(self, func_dict_args, tmpdf=None, return_df=False):
         # rolling_previous_day_range_args = {'column_name': col, 'freq': freq, 'shift_val': 1,'resample':resample}
         print_log("*"*100)

@@ -59,7 +59,7 @@ class pipelines:
 
     def pipeline_definitions(self):
         
-        '''
+        
         # Creation of labels
         if self.label_creation:
             for label in ['label_generator_4class', 'label_generator_4class_mod1','label_generator_4class_mod2','label_generator_7class']:
@@ -291,6 +291,6 @@ class pipelines:
                                         'transform_options':['rolling_percentage_change_multiplier','rank']}
             self.feature_mart.treat_unstable_cols(treat_unstable_cols_args)
             self.save_check_point()
-        '''
+        
         self.feature_mart.update_nulls(filter_ind='time_split_train_fold_10',tolerance_count=6000)
         self.save_check_point(end_conection=True)
