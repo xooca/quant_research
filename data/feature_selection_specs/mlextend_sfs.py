@@ -15,6 +15,7 @@ from sklearn.ensemble import RandomForestClassifier
 from collections import Counter
 import sys
 import joblib
+from imblearn.under_sampling import OneSidedSelection
 
 sys.modules['sklearn.externals.joblib'] = joblib
 
@@ -54,25 +55,32 @@ class feature_selection(base_feature_selection):
         self.feature_selection_method = 'mlextend_sfs'
         
     def perform_feature_selection(self,df_features,label):
+        print('Value count is :')
+        print(df_features[label].value_counts())
         labels = df_features[label].tolist()
         max_label =max(labels,key=labels.count)
-        df_features = df_features[df_features[label]==max_label]
+        print(f'Max label count is : {max_label}')
+        df_features = df_features[df_features[label]!=max_label]
         cols = [col for col in df_features.columns if col != label]
-        corr_features = self.correlation(df_features[cols], 0.9)
+        corr_features = self.correlation(df_features[cols], 0.95)
         print(f"Corelated features are {corr_features}")
         print(f"Before cor drop shape is {df_features.shape}")
         df_features.drop(labels=corr_features, axis=1, inplace=True)
         print(f"After cor drop shape is {df_features.shape}")
         cols = [col for col in df_features.columns if col != label]
+        print('Original dataset shape %s' % Counter(df_features[label]))
         sfs = SFS(RandomForestClassifier(n_estimators=75, n_jobs=-1, random_state=0),
-                k_features=(100,150), # the lower the features we want, the longer this will take
+                k_features=(100,300), # the lower the features we want, the longer this will take
                 forward=False,
                 floating=False,
                 verbose=2,
                 scoring='accuracy',
                 cv=2)
         
-        sfs = sfs.fit(df_features[cols], df_features[label])
+        oss = OneSidedSelection(random_state=42)
+        X_res, y_res = oss.fit_resample(df_features[cols], df_features[label])
+        print('Resampled dataset shape %s' % Counter(y_res))
+        sfs = sfs.fit(X_res, y_res)
         selected_features= list(sfs.k_feature_names_)
         null_cols = du.checknans(df_features, threshold=100)
         selected_features = [col for col in selected_features if col not in null_cols]

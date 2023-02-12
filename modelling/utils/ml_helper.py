@@ -259,7 +259,8 @@ class base_model_helper(DefineConfig):
         #    print(f"column {i} ............ info : {j}")
         print(f"Number of categorical columns are : {len(self.cat_cols)}")
         print(f"Categorical columns are : {self.cat_cols}")
-      
+    
+    
     def save_pickle_obj(self,pickle_file_path,pickle_obj):
         with open(pickle_file_path, 'wb') as f:
             pickle.dump(pickle_obj, f)   
@@ -277,6 +278,8 @@ class base_model_helper(DefineConfig):
         print(f"Null columns are {null_cols}")
         #data = data.drop(null_cols, axis=1)
         data = data.dropna()
+        if self.reduce_data_size:
+            data = du.reduce_mem_usage(data)
         print(f"Size of data after row null removal is {data.shape}")
         if data_scamble:
             data = data.sample(frac=sampling_fraction)
@@ -335,7 +338,7 @@ class base_model_helper(DefineConfig):
     def convert_col_to_dtype(self,cols,check_first_dtype='float',convert_first_dtype='int',dtype='category'):
         print(self.train_data[cols].dtypes)
         for c in cols:
-            print(f"............. {self.train_data[c].dtype}")
+            #print(f"............. {self.train_data[c].dtype}")
             if self.train_data[c].dtype == check_first_dtype:
                 self.train_data[c] = self.train_data[c].astype(convert_first_dtype)
                 #print(f"########## {self.train_data[c].dtype}")
@@ -345,10 +348,13 @@ class base_model_helper(DefineConfig):
             if self.validation_data[c].dtype == check_first_dtype:
                 self.validation_data[c] = self.validation_data[c].astype(convert_first_dtype)
                 #print(f"########## {self.validation_data[c].dtype}")
-            print(f"Converting column {c} to {dtype} in train, test and validation dataset")
+            
             self.train_data[c] = self.train_data[c].astype(dtype)
+            print(f"Converting train column {c} to {self.train_data[c].dtype} ")
             self.test_data[c] = self.test_data[c].astype(dtype)
+            print(f"Converting test column {c} to {self.test_data[c].dtype} ")
             self.validation_data[c] = self.validation_data[c].astype(dtype)
+            print(f"Converting validation column {c} to {self.validation_data[c].dtype}")
     
     def convert_to_arrays(self):
         self.train_data = np.array(self.train_data)

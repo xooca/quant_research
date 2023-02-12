@@ -90,6 +90,12 @@ class base_model_tuning(base_model_helper):
                 self.feature_names = feature_map_list[0]
                 self.label_mapper=feature_map_list[1]
                 self.initialize_dtype_info()
+                print(f"Number of feature columns before null drop are {len(self.feature_names)}")
+                self.feature_names = [col for col in self.feature_names if col not in self.null_cols]
+                print(f"Number of feature columns after null drop are {len(self.feature_names)}")
+                print(f"Number of Categorical columns before null drop are {len(self.cat_cols)}")
+                self.cat_cols = [col for col in self.cat_cols if col not in self.null_cols]
+                print(f"Number of Categorical columns after null drop are {len(self.cat_cols)}")
                 self.model_tune()              
         else:
             print(f"feature_selection_dict is empty {self.feature_selection_dict}. No training will start")

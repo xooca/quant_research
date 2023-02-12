@@ -368,8 +368,8 @@ class execute_feature_selection_pipeline:
                                                                               filter_out_cols=filter_out_cols,
                                                                               verbose=verbose)
 
-    def run_pipelines(self,forced_labels=[]):
-        self.feature_selection_pipeline.run_feature_selection(forced_labels=forced_labels)
+    def run_pipelines(self,forced_labels=[],split_selection_limit=1):
+        self.feature_selection_pipeline.run_feature_selection(forced_labels=forced_labels,split_selection_limit=split_selection_limit)
         
 
 class read_data_api:

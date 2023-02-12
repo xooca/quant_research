@@ -24,23 +24,9 @@ import pandas as pd
 from collections import Counter
 import gc
 from optuna.integration import CatBoostPruningCallback
+from modelling.metrics import metrics as met
 
-def gini(actual, pred, cmpcol=0, sortcol=1):
-    assert (len(actual) == len(pred))
-    all = np.asarray(np.c_[actual, pred, np.arange(len(actual))], dtype=np.float)
-    all = all[np.lexsort((all[:, 2], -1 * all[:, 1]))]
-    totalLosses = all[:, 0].sum()
-    giniSum = all[:, 0].cumsum().sum() / totalLosses
-
-    giniSum -= (len(actual) + 1) / 2.
-    return giniSum / len(actual)
-
-
-def gini_normalized(a, p):
-    return gini(a, p) / gini(a, a)
-
-
-class GiniMetric(object):
+class GiniMetricAllNormalized(object):
     def get_final_error(self, error, weight):
         return error / (weight + 1e-38)
 
@@ -55,41 +41,134 @@ class GiniMetric(object):
 
         # weight parameter can be None.
         # Returns pair (error, weights sum)
-
+        print(approxes)
+        print('*****')
+        print(target)
         assert len(approxes) == 1
         assert len(target) == len(approxes[0])
 
         approx = approxes[0]
-
         error_sum = 0.0
         weight_sum = 1.0
-
-        error_sum = gini_normalized(target, approx)
-
+        error_sum = met.calculate_gini_for_all_class(target, approx,normalized=True)
         return error_sum, weight_sum
 
-class ProfitMetric:
-    
+class GiniMetricMinorityNormalized(object):
+    def get_final_error(self, error, weight):
+        return error / (weight + 1e-38)
+
+    def is_max_optimal(self):
+        return True
+
+    def evaluate(self, approxes, target, weight):
+        # approxes is list of indexed containers (containers with only __len__ and __getitem__ defined), one container
+        # per approx dimension. Each container contains floats.
+        # weight is one dimensional indexed container.
+        # target is float.
+
+        # weight parameter can be None.
+        # Returns pair (error, weights sum)
+        #print(approxes)
+        #print('*****')
+        #print(target)
+        #assert len(approxes) == 1
+        #assert len(target) == len(approxes[0])
+        approx = approxes[0]
+        error_sum = 0.0
+        weight_sum = 1.0
+        error_sum = met.calculate_gini_for_minority_class(target, approx,normalized=True)
+        return error_sum, weight_sum
+
+class GiniMetricAll(object):
+    def get_final_error(self, error, weight):
+        return error / (weight + 1e-38)
+
+    def is_max_optimal(self):
+        return True
+
+    def evaluate(self, approxes, target, weight):
+        # approxes is list of indexed containers (containers with only __len__ and __getitem__ defined), one container
+        # per approx dimension. Each container contains floats.
+        # weight is one dimensional indexed container.
+        # target is float.
+
+        # weight parameter can be None.
+        # Returns pair (error, weights sum)
+        #print(approxes)
+        #print('*****')
+        #print(target)
+        #assert len(approxes) == 1
+        #assert len(target) == len(approxes[0])
+        approx = approxes[0]
+        error_sum = 0.0
+        weight_sum = 1.0
+        error_sum = met.calculate_gini_for_all_class(target, approx,normalized=False)
+        return error_sum, weight_sum
+
+class GiniMetricMinority(object):
+    def get_final_error(self, error, weight):
+        return error / (weight + 1e-38)
+
+    def is_max_optimal(self):
+        return True
+
+    def evaluate(self, approxes, target, weight):
+        # approxes is list of indexed containers (containers with only __len__ and __getitem__ defined), one container
+        # per approx dimension. Each container contains floats.
+        # weight is one dimensional indexed container.
+        # target is float.
+
+        # weight parameter can be None.
+        # Returns pair (error, weights sum)
+        #print(approxes)
+        #print('*****')
+        #print(target)
+        #assert len(approxes) == 1
+        #assert len(target) == len(approxes[0])
+        approx = approxes[0]
+        error_sum = 0.0
+        weight_sum = 1.0
+        error_sum = met.calculate_gini_for_minority_class(target, approx,normalized=False)
+        return error_sum, weight_sum
+
+class ProfitMetricAll:
     @staticmethod
     def get_profit(y_true, y_pred):
-        y_pred = expit(y_pred).astype(int)
-        y_true = y_true.astype(int)
-        #print("ACCURACY:",(y_pred==y_true).mean())
-        tn, fp, fn, tp = mt.confusion_matrix(y_true, y_pred).ravel()
-        loss = 400*tp - 200*fn - 100*fp
+        loss = met.calculate_profit_cost_for_all_class(y_true, y_pred,tp_w=3,fn_w=2,fp_w=2,tn_w=0)
         return loss
     
     def is_max_optimal(self):
         return True # greater is better
 
-    def evaluate(self, approxes, target, weight):            
-        assert len(approxes) == 1
-        assert len(target) == len(approxes[0])
-        y_true = np.array(target).astype(int)
-        approx = approxes[0]
+    def evaluate(self, approxes, target, weight):  
+        approx = expit(approxes)
+        approx = np.array(approx).argmax(axis=0)
+        y_true = np.array(target).astype(int)   
         score = self.get_profit(y_true, approx)
-        return score, 1    
-                                               
+        return score, 1
+
+    def get_final_error(self, error, weight):
+        return error
+
+class ProfitMetricMinority:
+    @staticmethod
+    def get_profit(y_true, y_pred):
+        loss = met.calculate_profit_cost_for_minority_class(y_true, y_pred,tp_w=3,fn_w=4,fp_w=4,tn_w=0)
+        return loss
+    
+    def is_max_optimal(self):
+        return True # greater is better
+
+    def evaluate(self, approxes, target, weight):   
+        approx = expit(approxes)
+        approx = np.array(approx).argmax(axis=0)
+        y_true = np.array(target).astype(int)   
+        score = self.get_profit(y_true, approx)
+        return score, 1
+
+    def get_final_error(self, error, weight):
+        return error
+
 class model(base_model_tuning):
                  
     def __init__(self,
@@ -119,11 +198,12 @@ class model(base_model_tuning):
     def get_search_space(self,trial):
         if len(self.label_mapper) == 2:
             param = {
-                "objective": trial.suggest_categorical("objective", ["CrossEntropy"]),
+                "objective": trial.suggest_categorical("objective", ["CrossEntropy","Logloss"]),
                 #"eval_metric" : trial.suggest_categorical("eval_metric", ["Precision","AUC","BalancedAccuracy","Recall","F","F1"]),
+                "bootstrap_type" : trial.suggest_categorical("bootstrap_type", ["Bayesian","Bernoulli"]),
                 "learning_rate" : trial.suggest_loguniform('learning_rate', 0.01, 0.3),
                 "l2_leaf_reg": trial.suggest_int("l2_leaf_reg", 0, 100, step=5),
-                "bagging_temperature": trial.suggest_loguniform('bagging_temperature', 0.01, 100.00),
+                #"bagging_temperature": trial.suggest_loguniform('bagging_temperature', 0.01, 100.00),
                 #"use_best_model": True,
                 "depth": trial.suggest_int("depth", 6, 16),
                 "min_data_in_leaf" : trial.suggest_int("min_data_in_leaf", 1, 10),
@@ -135,11 +215,12 @@ class model(base_model_tuning):
         else:
             param = {
                 
-                "objective": trial.suggest_categorical("objective", ["MultiClass"]),
+                "objective": trial.suggest_categorical("objective", ["MultiClass","MultiClassOneVsAll"]),
                # "eval_metric" : trial.suggest_categorical("eval_metric", [ProfitMetric(),"Kappa","WKappa","Accuracy","MCC","AUC","F1"]),
+                "bootstrap_type" : trial.suggest_categorical("bootstrap_type", ["Bayesian","Bernoulli"]),
                 "learning_rate" : trial.suggest_loguniform('learning_rate', 0.01, 0.3),
                 "l2_leaf_reg": trial.suggest_int("l2_leaf_reg", 0, 100, step=5),
-                "bagging_temperature": trial.suggest_loguniform('bagging_temperature', 0.01, 100.00),
+                #"bagging_temperature": trial.suggest_loguniform('bagging_temperature', 0.01, 100.00),
                 #"use_best_model": True,
                 "depth": trial.suggest_int("depth", 6, 16),
                 "min_data_in_leaf" : trial.suggest_int("min_data_in_leaf", 1, 10),
@@ -147,7 +228,12 @@ class model(base_model_tuning):
                 "auto_class_weights":trial.suggest_categorical("auto_class_weights", ["Balanced","SqrtBalanced", None]),
                 "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.01, 0.1),
                 "boosting_type": trial.suggest_categorical("boosting_type", ["Ordered", "Plain"]),
-                "random_strength" :trial.suggest_int('random_strength', 0, 100)                }            
+                "random_strength" :trial.suggest_int('random_strength', 0, 100)
+                }
+        if param["bootstrap_type"] == "Bayesian":
+            param["bagging_temperature"] = trial.suggest_float("bagging_temperature", 0, 10)
+        elif param["bootstrap_type"] == "Bernoulli":
+            param["subsample"] = trial.suggest_float("subsample", 0.1, 1)            
         return param 
     
 
@@ -157,8 +243,10 @@ class model(base_model_tuning):
         self.model_fit_params.update({'X':self.train_data})
         self.model_fit_params.update({'y':self.train_data_label})
         
-        self.model_fit_params.update({'eval_set':[(self.validation_data, self.validation_data_label), 
-                                                (self.train_data, self.train_data_label)]})
+        #self.model_fit_params.update({'eval_set':[(self.validation_data, self.validation_data_label), 
+        #                                        (self.train_data, self.train_data_label)]})
+        
+        self.model_fit_params.update({'eval_set':[(self.validation_data, self.validation_data_label)]})
         #self.model_fit_params.update({'categorical_feature':self.cat_cols})            
         print(f"Elements is model_fit_params are {self.model_fit_params.keys()}")
 
@@ -203,9 +291,10 @@ class model(base_model_tuning):
         self.strategy='chunking'
         self.feature_strategy = 'selection' # 'all-notinclude-unstable-feature','all-include-unstable-feature','selection'
         self.standardize_strategy = None # 'all','only-unstable'
+        self.study_name = "catboost_tune"
         
     def define_and_run_study(self):
-        study = optuna.create_study(direction='maximize', study_name="lightgbmtune",)
+        study = optuna.create_study(direction='maximize', study_name=self.study_name)
         study.optimize(self.objective_function, n_trials=35) 
         print(study.best_trial)
         print( study.best_trial.user_attrs)

@@ -117,15 +117,24 @@ class base_feature_selection(DefineConfig):
     
     def get_info_for_feature_selection(self,
                                         label,
-                                        time_split='time_split_train_fold_10'):
-        sql = f"select {','.join(self.features)},{label} from {self.train_feature_table} where time_split = '{time_split}'"
+                                        time_split=['time_split_train_fold_10']):
+        
+        time_split = "','".join(time_split)
+        time_split = f"('{time_split}')"
+
+        sql = f"select {','.join(self.features)},{label} from {self.train_feature_table} where time_split in {time_split}"
+        print(sql)
         df_features = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         print(f"Shape of features loaded is {df_features.shape}")
 
         df_features.replace([np.inf, -np.inf], np.nan, inplace=True)
         null_cols = du.checknans(df_features, threshold=100)
+        print(f"Null columns are {null_cols}")
+        print(f"Shape of df_features before null drop {df_features.shape}")
         df_features = df_features.drop(null_cols, axis=1)
+        print(f"Shape of df_features after null drop {df_features.shape}")
         df_features = df_features.dropna()
+        print(f"Shape of df_features after nan drop {df_features.shape}")
         df_features = df_features[df_features[label] != 'unknown']
         dtypes_df = pd.DataFrame(df_features.dtypes).reset_index()
         dtypes_df.columns = ['col_name','data_type']
@@ -201,7 +210,7 @@ class base_feature_selection(DefineConfig):
     def set_feature_selection_name(self):
         self.feature_selection_method = None
         
-    def run_feature_selection(self,forced_labels=[]):
+    def run_feature_selection(self,forced_labels=[],split_selection_limit = 2):
         self.get_feature_info()
         if len(forced_labels) > 0:
             self.labels = forced_labels
@@ -209,7 +218,16 @@ class base_feature_selection(DefineConfig):
             print("*"*100)
             print(f"****** SELECTING FEATURES for LABEL {label} *******")
             print("*"*100)
-            df_features = self.get_info_for_feature_selection(label=label,time_split=random.choice(self.train_split))
+            final_split = []
+            selecting_split = self.train_split.copy()
+            print(f"Total splits are {selecting_split}")
+            for i in range(split_selection_limit):
+                selected = random.choice(selecting_split)
+                print(f"Split selected is {selected}")
+                final_split.append(selected)
+                selecting_split.remove(selected)
+            print(f"Selected splits are {final_split}")
+            df_features = self.get_info_for_feature_selection(label=label,time_split=final_split)
             label_mapper = self.get_label_mapper(df_features,label)
             df_features[label] = df_features[label].map(label_mapper)
             selected_features = self.perform_feature_selection(df_features,label)
