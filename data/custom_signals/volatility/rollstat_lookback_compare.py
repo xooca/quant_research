@@ -7,9 +7,6 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-
-
-
 def rollstat_lookback_compare(close, length=None, offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
@@ -17,28 +14,34 @@ def rollstat_lookback_compare(close, length=None, offset=None, **kwargs):
     # Validate arguments
     lookback_divider = kwargs["lookback_divider"]
     def lookback_diff(vals):
-        offset_val = len(vals)//lookback_divider
-        return np.array(vals)[offset_val]-np.array(vals)[0]
+        offset = len(vals)//lookback_divider
+        res = (np.array(vals)[offset]-np.array(vals)[-1]
+                ) - (np.array(vals)[0]-np.array(vals)[offset])
+        return res
 
     def lookback_max(vals):
-        offset_val = len(vals)//lookback_divider
-        return np.array(vals)[offset_val]-max(np.array(vals)[0:offset_val+1])
+        offset = len(vals)//lookback_divider
+        return max(np.array(vals)[offset+1:])-max(np.array(vals)[0:offset+1])
 
     def lookback_min(vals):
-        offset_val = len(vals)//lookback_divider
-        return np.array(vals)[offset_val]-min(np.array(vals)[0:offset_val+1])
+        offset = len(vals)//lookback_divider
+        return min(np.array(vals)[offset+1:])-min(np.array(vals)[0:offset+1])
 
     def lookback_mean(vals):
-        offset_val = len(vals)//lookback_divider
-        return np.array(vals)[offset_val]-np.array(vals)[0:offset_val+1].mean()
+        offset = len(vals)//lookback_divider
+        return np.array(vals)[offset+1:].mean()-np.array(vals)[0:offset+1].mean()
 
-    def lookback_max_max(vals):
-        offset_val = len(vals)//lookback_divider
-        return max(np.array(vals))-np.array(vals)[0:offset_val+1].mean()
+    def lookback_max_min(vals):
+        offset = len(vals)//lookback_divider
+        return max(np.array(vals)[offset+1:])-min(np.array(vals)[0:offset+1])
 
-    def lookback_min_min(vals):
-        offset_val = len(vals)//lookback_divider
-        return min(np.array(vals))-np.array(vals)[0:offset_val+1].mean()
+    def lookback_min_max(vals):
+        offset = len(vals)//lookback_divider
+        return min(np.array(vals)[offset+1:])-max(np.array(vals)[0:offset+1])
+
+    def lookback_sum(vals):
+        offset = len(vals)//lookback_divider
+        return sum(np.array(vals)[offset+1:])-sum(np.array(vals)[0:offset+1])
 
     length = int(length) if length and length > 0 else 20
     
@@ -46,29 +49,30 @@ def rollstat_lookback_compare(close, length=None, offset=None, **kwargs):
     offset = get_offset(offset)
 
     if close is None: return
-    _name = "ROLLSLB_"
+    _name = "ROLLLBC_"
     _props = f"_{length}_{offset}_{lookback_divider}"
     merge_dict = {}
     col_name = f"{_name}_{_props}_DIFF".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_diff)})
+    merge_dict.update({col_name: close.rolling(length).apply(lookback_diff)}) 
 
     col_name = f"{_name}_{_props}_{offset}_MAXDIFF".replace('-','_minus_')
     merge_dict.update({col_name: close.rolling(length).apply(lookback_max})
-
+  
 
     col_name = f"{_name}_{_props}_MINDIFF".replace('-','_minus_')
     merge_dict.update({col_name: close.rolling(length).apply(lookback_min)})
-
 
     col_name = f"{_name}_{_props}_MEANDIFF".replace('-','_minus_')
     merge_dict.update({col_name: close.rolling(length).apply(lookback_mean)})
 
     col_name = f"{_name}_{_props}_MAXMAX".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_max_max)})
+    merge_dict.update({col_name: close.rolling(length).apply(lookback_max_min)})
 
-     col_name = f"{_name}_{_props}_MINMIN".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_min_min)})
-       
+    col_name = f"{_name}_{_props}_MINMIN".replace('-','_minus_')
+    merge_dict.update({col_name: close.rolling(length).apply(lookback_min_max)})
+
+    col_name = f"{_name}_{_props}_SUMDIFF".replace('-','_minus_')
+    merge_dict.update({col_name: close.rolling(length).apply(lookback_sum)})       
     #column_list.append('timestamp')
     df = pd.concat(merge_dict, axis=1)
     
