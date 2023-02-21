@@ -2995,7 +2995,7 @@ class feature_mart(DefineConfig):
         def lookback_sum(vals):
             return sum(np.array(vals)[self.offset+1:])-sum(np.array(vals))
                 
-        col_name = f'ROLLLBC_{column}_{window}_{min_periods}_{self.lookback_divider}_MINMAX'.replace('-','_minus_')
+        col_name = f'ROLLOFF_{column}_{window}_{min_periods}_{self.lookback_divider}_MINMAX'.replace('-','_minus_')
         
         if tmpdf is None:
             tmpdf = self.get_ohlc_df(column_name=col_name)

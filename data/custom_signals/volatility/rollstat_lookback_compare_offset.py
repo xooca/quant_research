@@ -7,41 +7,35 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-def rollstat_lookback_compare(close, length=None, offset=None, **kwargs):
+def rollstat_lookback_compare_offset(close, length=None, offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
  
     # Validate arguments
     lookback_divider = kwargs["lookback_divider"]
+    offset_val = kwargs["divider_offset_val"]
     def lookback_diff(vals):
-        offset_val = len(vals)//lookback_divider
-        res = (np.array(vals)[offset_val]-np.array(vals)[-1]
+        res = (np.array(vals)[self.offset_val]-np.array(vals)[-1]
                 ) - (np.array(vals)[0]-np.array(vals)[offset_val])
         return res
 
     def lookback_max(vals):
-        offset_val = len(vals)//lookback_divider
-        return max(np.array(vals)[offset_val+1:])-max(np.array(vals)[0:offset_val+1])
+        return max(np.array(vals)[offset_val+1:])-max(np.array(vals))
 
     def lookback_min(vals):
-        offset_val = len(vals)//lookback_divider
-        return min(np.array(vals)[offset_val+1:])-min(np.array(vals)[0:offset_val+1])
+        return min(np.array(vals)[offset_val+1:])-min(np.array(vals))
 
     def lookback_mean(vals):
-        offset_val = len(vals)//lookback_divider
-        return np.array(vals)[offset_val+1:].mean()-np.array(vals)[0:offset_val+1].mean()
+        return np.array(vals)[offset_val+1:].mean()-np.array(vals).mean()
 
     def lookback_max_min(vals):
-        offset_val = len(vals)//lookback_divider
-        return max(np.array(vals)[offset_val+1:])-min(np.array(vals)[0:offset_val+1])
+        return max(np.array(vals)[offset_val+1:])-min(np.array(vals))
 
     def lookback_min_max(vals):
-        offset_val = len(vals)//lookback_divider
-        return min(np.array(vals)[offset_val+1:])-max(np.array(vals)[0:offset_val+1])
+        return min(np.array(vals)[offset_val+1:])-max(np.array(vals))
 
     def lookback_sum(vals):
-        offset_val = len(vals)//lookback_divider
-        return sum(np.array(vals)[offset_val+1:])-sum(np.array(vals)[0:offset_val+1])
+            return sum(np.array(vals)[offset_val+1:])-sum(np.array(vals))
 
     length = int(length) if length and length > 0 else 20
     
@@ -49,7 +43,7 @@ def rollstat_lookback_compare(close, length=None, offset=None, **kwargs):
     offset = get_offset(offset)
 
     if close is None: return
-    _name = "ROLLLBC_"
+    _name = "ROLLOFF_"
     _props = f"_{length}_{offset}_{lookback_divider}"
     merge_dict = {}
     col_name = f"{_name}_{_props}_DIFF".replace('-','_minus_')
@@ -91,7 +85,7 @@ def rollstat_lookback_compare(close, length=None, offset=None, **kwargs):
     return df
 
 
-rollstat_lookback_compare.__doc__ = \
+rollstat_lookback_compare_offset.__doc__ = \
 """Rolling Stats for calculation of various rolling stats
 
 The MACD is a popular indicator to that is used to identify a security's trend.
@@ -136,7 +130,7 @@ Returns:
 """
 # - Define a matching class method --------------------------------------------
 
-def rollstat_lookback_compare_method(self, length=None, offset=None, **kwargs):
+def rollstat_lookback_compare_offset_method(self, length=None, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
-    result = rollstat_lookback_compare(close=close, length=length, offset=offset, **kwargs)
+    result = rollstat_lookback_compare_offset(close=close, length=length, offset=offset, **kwargs)
     return self._post_process(result, **kwargs)
