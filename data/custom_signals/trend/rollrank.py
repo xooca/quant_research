@@ -10,7 +10,9 @@ import pandas as pd
 def rollrank(close, length=None, offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
- 
+    def ranking(s):
+        return s.rank(ascending=False)[len(s)-1]
+    
     # Validate arguments
     length = int(length) if length and length > 0 else 20
     
@@ -20,7 +22,7 @@ def rollrank(close, length=None, offset=None, **kwargs):
     if close is None: return
     _name = "ROLLRNK_"
     _props = f"_{length}_{offset}"
-    retvalue = close.rolling(length).apply(self.rank)
+    retvalue = close.rolling(length).apply(ranking)
     
     if offset != 0:
         retvalue = retvalue.shift(offset)
