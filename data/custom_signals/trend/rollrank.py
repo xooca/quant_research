@@ -20,7 +20,7 @@ def rollrank(close, length=None, offset=None, **kwargs):
     offset = get_offset(offset)
 
     if close is None: return
-    _name = "ROLLRNK_"
+    _name = "ROLLRNK"
     _props = f"_{length}_{offset}"
     retvalue = close.rolling(length).apply(ranking)
     

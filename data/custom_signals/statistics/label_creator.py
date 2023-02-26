@@ -146,7 +146,7 @@ def label_creator(close,length=None, offset=None, **kwargs):
     _name = "LABEL"
     _props = f"_{length}_{kwargs['apply_func']}".replace("-", '_minus_')
     
-    close = close.shift(length).subtract(close).apply(kwargs['apply_func']) 
+    close = close.shift(length).subtract(close).apply(globals()[kwargs['apply_func']]) 
     if offset != 0:
         close = close.shift(offset)
 
@@ -163,7 +163,7 @@ def label_creator(close,length=None, offset=None, **kwargs):
     return close
 
 
-pricerange_hour.__doc__ = \
+label_creator.__doc__ = \
 """Rolling Stats for calculation of various rolling stats
 
 The MACD is a popular indicator to that is used to identify a security's trend.

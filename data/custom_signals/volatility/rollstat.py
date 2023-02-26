@@ -14,7 +14,7 @@ def rollstat(close, length=None, offset=None, **kwargs):
     # Validate arguments
     length = int(length) if length and length > 0 else 20
     
-    close = verify_series(close, )
+    close = verify_series(close,length)
     offset = get_offset(offset)
 
     if close is None: return
