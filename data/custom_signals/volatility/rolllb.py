@@ -12,7 +12,8 @@ def rolllb(close, length=None, offset=None, **kwargs):
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
  
     # Validate arguments
-    lookback_divider = 2 if kwargs.get("lookback_divider") is not None else kwargs.get("lookback_divider")
+    print(kwargs.get("lookback_divider"))
+    lookback_divider = 2 if kwargs.get("lookback_divider") is None else kwargs.get("lookback_divider")
     def lookback_diff(vals):
         offset_val = len(vals)//lookback_divider
         return np.array(vals)[offset_val]-np.array(vals)[0]

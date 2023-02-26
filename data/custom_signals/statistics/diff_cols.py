@@ -11,9 +11,7 @@ def diff_cols(first,second, offset_first=None, offset_second=None,**kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
     
-    # Validate arguments
-    length = int(length) if length and length > 0 else 20
-    
+    # Validate arguments    
     close = verify_series(close, length)
     
 
