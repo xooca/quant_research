@@ -21,7 +21,7 @@ def roll_vals(close, length=None, offset=None, **kwargs):
 
     if close is None: return
     
-    _name = "ROLLVALS_"
+    _name = "ROLLVALS"
     _props = f"_{length}_{offset}"
     
     eval_stmt = ''

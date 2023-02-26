@@ -143,7 +143,7 @@ def label_creator(close,length=None, offset=None, **kwargs):
 
     if close is None: return
     
-    _name = "label_"
+    _name = "LABEL"
     _props = f"_{length}_{kwargs['apply_func']}".replace("-", '_minus_')
     
     close = close.shift(length).subtract(close).apply(kwargs['apply_func']) 

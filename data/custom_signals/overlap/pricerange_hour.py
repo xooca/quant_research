@@ -24,7 +24,7 @@ def pricerange_hour(first, second,length=None, offset=None, **kwargs):
     range_type = kwargs['range_type']
     r1 = kwargs.get('hour_range')[0]
     r2 = kwargs.get('hour_range')[1]
-    _name = "ROLLPDR_"
+    _name = "ROLLPDR"
     _props = f"_{length}_{offset}_{range_type}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
     
     if range_type == 'price_range':
@@ -51,7 +51,7 @@ def pricerange_hour(first, second,length=None, offset=None, **kwargs):
 
     # Name and Categorize it
     close.name = f"{_name}_{_props}"
-    close.category = "momentum"
+    close.category = "overlap"
     
     return close
 

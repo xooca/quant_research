@@ -18,7 +18,8 @@ def rollstat(close, length=None, offset=None, **kwargs):
     offset = get_offset(offset)
 
     if close is None: return
-    _name = "ROLLSTT_"
+    _name = "ROLLSTT"
+    offset = 2 if offset is not None else offset
     _props = f"_{length}_{offset}"
     merge_dict = {}
     col_name = f"{_name}_{_props}_DIFF".replace('-','_minus_')

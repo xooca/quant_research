@@ -12,7 +12,7 @@ def rolltrends(close, length=None, offset=None, **kwargs):
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""    
     # Validate arguments
     length = int(length) if length and length > 0 else 20
-    
+    #offset = 0 if offset is None else offset
     close = verify_series(close, )
     offset = get_offset(offset)
 

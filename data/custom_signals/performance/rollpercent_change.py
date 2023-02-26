@@ -20,7 +20,7 @@ def rollpercent_change(close, length=None, offset=None, **kwargs):
     offset = get_offset(offset)
 
     if close is None: return
-    _name = "ROLLPER_"
+    _name = "ROLLPER"
     _props = f"_{length}_{offset}"
     retvalue = close.pct_change(periods=length, fill_method=kwargs['fill_method'], limit=kwargs['limit'], freq=kwargs['freq'])*kwargs['multiplier']
     

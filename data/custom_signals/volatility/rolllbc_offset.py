@@ -7,15 +7,14 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-def rollstat_lookback_compare_offset(close, length=None, offset=None, **kwargs):
+def rolllbc_offset(close, length=None, offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
  
     # Validate arguments
-    lookback_divider = kwargs["lookback_divider"]
-    offset_val = kwargs["divider_offset_val"]
+    offset_val = 2 if kwargs.get("divider_offset_val") is not None else kwargs.get("divider_offset_val")
     def lookback_diff(vals):
-        res = (np.array(vals)[self.offset_val]-np.array(vals)[-1]
+        res = (np.array(vals)[offset_val]-np.array(vals)[-1]
                 ) - (np.array(vals)[0]-np.array(vals)[offset_val])
         return res
 
@@ -43,8 +42,8 @@ def rollstat_lookback_compare_offset(close, length=None, offset=None, **kwargs):
     offset = get_offset(offset)
 
     if close is None: return
-    _name = "ROLLOFF_"
-    _props = f"_{length}_{offset}_{lookback_divider}"
+    _name = "ROLLBO"
+    _props = f"_{length}_{offset}"
     merge_dict = {}
     col_name = f"{_name}_{_props}_DIFF".replace('-','_minus_')
     merge_dict.update({col_name: close.rolling(length).apply(lookback_diff)}) 
@@ -85,7 +84,7 @@ def rollstat_lookback_compare_offset(close, length=None, offset=None, **kwargs):
     return df
 
 
-rollstat_lookback_compare_offset.__doc__ = \
+rolllbc_offset.__doc__ = \
 """Rolling Stats for calculation of various rolling stats
 
 The MACD is a popular indicator to that is used to identify a security's trend.
@@ -130,7 +129,7 @@ Returns:
 """
 # - Define a matching class method --------------------------------------------
 
-def rollstat_lookback_compare_offset_method(self, length=None, offset=None, **kwargs):
+def rolllbc_offset_method(self, length=None, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
-    result = rollstat_lookback_compare_offset(close=close, length=length, offset=offset, **kwargs)
+    result = rolllbc_offset(close=close, length=length, offset=offset, **kwargs)
     return self._post_process(result, **kwargs)
