@@ -44,31 +44,37 @@ def rolllb(close, length=None, offset=None, **kwargs):
     
     close = verify_series(close, length)
     offset = get_offset(offset)
+    function_option_list = ['diff','maxdiff'] if kwargs.get('function_option') is None else kwargs.get('function_option')
 
     if close is None: return
     _name = "ROLLLB"
     _props = f"_{length}_{offset}_{lookback_divider}"
     merge_dict = {}
-    col_name = f"{_name}_{_props}_DIFF".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_diff)})
+        
+    for function_option in function_option_list:
+        if function_option == 'diff' or function_option == 'all':
+            col_name = f"{_name}_{_props}_DIFF".replace('-','_minus_')
+            merge_dict.update({col_name: close.rolling(length).apply(lookback_diff)})
 
-    col_name = f"{_name}_{_props}_{offset}_MAXDIFF".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_max})
+        if function_option == 'maxdiff' or function_option == 'all':
+            col_name = f"{_name}_{_props}_{offset}_MAXDIFF".replace('-','_minus_')
+            merge_dict.update({col_name: close.rolling(length).apply(lookback_max})
 
+        if function_option == 'mindiff' or function_option == 'all':
+            col_name = f"{_name}_{_props}_MINDIFF".replace('-','_minus_')
+            merge_dict.update({col_name: close.rolling(length).apply(lookback_min)})
 
-    col_name = f"{_name}_{_props}_MINDIFF".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_min)})
-
-
-    col_name = f"{_name}_{_props}_MEANDIFF".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_mean)})
-
-    col_name = f"{_name}_{_props}_MAXMAX".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_max_max)})
-
-     col_name = f"{_name}_{_props}_MINMIN".replace('-','_minus_')
-    merge_dict.update({col_name: close.rolling(length).apply(lookback_min_min)})
-       
+        if function_option == 'meandiff' or function_option == 'all':
+            col_name = f"{_name}_{_props}_MEANDIFF".replace('-','_minus_')
+            merge_dict.update({col_name: close.rolling(length).apply(lookback_mean)})
+            
+        if function_option == 'maxmax' or function_option == 'all':
+            col_name = f"{_name}_{_props}_MAXMAX".replace('-','_minus_')
+            merge_dict.update({col_name: close.rolling(length).apply(lookback_max_max)})
+        if function_option == 'minmin' or function_option == 'all':
+            col_name = f"{_name}_{_props}_MINMIN".replace('-','_minus_')
+            merge_dict.update({col_name: close.rolling(length).apply(lookback_min_min)})
+            
     #column_list.append('timestamp')
     df = pd.concat(merge_dict, axis=1)
     
