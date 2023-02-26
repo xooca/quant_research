@@ -62,7 +62,7 @@ def rolllbc(close, length=None, offset=None, **kwargs):
 
         if function_option == 'maxdiff' or function_option == 'all':
             col_name = f"{_name}_{_props}_{offset}_MAXDIFF".replace('-','_minus_')
-            merge_dict.update({col_name: close.rolling(length).apply(lookback_max})
+            merge_dict.update({col_name: close.rolling(length).apply(lookback_max)})
   
         if function_option == 'mindiff' or function_option == 'all':
             col_name = f"{_name}_{_props}_MINDIFF".replace('-','_minus_')
