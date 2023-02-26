@@ -7,7 +7,7 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-def roll_vals(close, length=None, offset=None, **kwargs):
+def rollvals(close, length=None, offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
     def ranking(s):
@@ -48,7 +48,7 @@ def roll_vals(close, length=None, offset=None, **kwargs):
     return close
 
 
-price_breach.__doc__ = \
+rollvals.__doc__ = \
 """Rolling Stats for calculation of various rolling stats
 
 The MACD is a popular indicator to that is used to identify a security's trend.
@@ -93,7 +93,7 @@ Returns:
 """
 # - Define a matching class method --------------------------------------------
 
-def roll_vals_method(self, length=None, offset=None, **kwargs):
+def rollvals_method(self, length=None, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
     result = roll_vals(close=close, length=length, offset=offset, **kwargs)
     return self._post_process(result, **kwargs)

@@ -40,7 +40,7 @@ def rollpercent_change(close, length=None, offset=None, **kwargs):
     return retvalue
 
 
-rollrank.__doc__ = \
+rollpercent_change.__doc__ = \
 """Rolling Stats for calculation of various rolling stats
 
 The MACD is a popular indicator to that is used to identify a security's trend.
@@ -85,7 +85,7 @@ Returns:
 """
 # - Define a matching class method --------------------------------------------
 
-def rollrank_method(self, length=None, offset=None, **kwargs):
+def rollpercent_change_method(self, length=None, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
-    result = rollrank(close=close, length=length, offset=offset, **kwargs)
+    result = rollpercent_change(close=close, length=length, offset=offset, **kwargs)
     return self._post_process(result, **kwargs)
