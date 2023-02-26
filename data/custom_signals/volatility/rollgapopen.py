@@ -12,8 +12,6 @@ def rollgapopen(close, frequency=None, offset=None, **kwargs):
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
  
     # Validate arguments
-    length = int(length) if length and length > 0 else 20
-    
     close = verify_series(close, )
     offset = get_offset(offset)
 
