@@ -17,7 +17,7 @@ def rolltrends(close, length=None, offset=None, **kwargs):
     offset = get_offset(offset)
 
     if close is None: return
-    _name = "ROLLRNK"
+    _name = "ROLLTRN"
     _props = f"_{length}_{offset}".replace('-','_minus_')
     close = close.pct_change().apply(np.sign).rolling(length).apply(np.sum)
     
