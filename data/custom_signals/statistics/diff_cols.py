@@ -7,56 +7,47 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-def pricerange_hour(first, second,length=None, offset=None, **kwargs):
+def diff_cols(first,second, offset_first=None, offset_second=None,**kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
-    def ranking(s):
-        return s.rank(ascending=False)[len(s)-1]
     
     # Validate arguments
     length = int(length) if length and length > 0 else 20
     
-    close = verify_series(close, )
-    offset = get_offset(offset)
+    close = verify_series(close, length)
+    
 
     if close is None: return
     
-    range_type = kwargs['range_type']
-    r1 = kwargs.get('hour_range')[0]
-    r2 = kwargs.get('hour_range')[1]
-    _name = "ROLLPDR"
-    _props = f"_{length}_{offset}_{range_type}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
+    offset_first = 0 if kwargs.get('offset_first') is None else kwargs.get('offset_first')
+    offset_second = 0 if kwargs.get('offset_second') is None else kwargs.get('offset_second')
+    offset_first = get_offset(offset_first)
+    offset_second = get_offset(offset_second)
     
-    if range_type == 'price_range':
-        close = first.between_time(r1, r2).groupby(pd.Grouper(freq='d')).max() - second.between_time(r1, r2).groupby(pd.Grouper(freq='d')).min()
-    elif range_type == 'price_deviation_max_first_col':
-        close = first.between_time(r1, r2).groupby(pd.Grouper(freq='d')).mean() - second.between_time(r1, r2).groupby(pd.Grouper(freq='d')).max()
-    elif range_type == 'price_deviation_min_first_col':
-        close = first.between_time(r1, r2).groupby(pd.Grouper(freq='d')).mean() - second.between_time(r1, r2).groupby(pd.Grouper(freq='d')).min()
-    elif range_type == 'price_deviation_max_second_col':
-        close = first.between_time(r1, r2).groupby(pd.Grouper(freq='d')).mean() - second.between_time(r1, r2).groupby(pd.Grouper(freq='d')).max()
-    elif range_type == 'price_deviation_min_second_col':
-        close = first.between_time(r1, r2).groupby(pd.Grouper(freq='d')).mean() - second.between_time(r1, r2).groupby(pd.Grouper(freq='d')).min()
-    else:
-        close = first.between_time(r1, r2).groupby(pd.Grouper(freq='d')).max() - second.between_time(r1, r2).groupby(pd.Grouper(freq='d')).min()
- 
-    if offset != 0:
-        close = close.shift(offset)
+    _name = "ROLLPRH"
+    _props = f"_{length}_{offset}_{freq}_{shift_val}_{rsmpl}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
+    
+    if offset_first != 0:
+        first = first.shift(offset_first)
+    if offset_second != 0:
+        second = second.shift(offset_second)
+        
+    ret_value = first - second
 
     # Handle fills
     if "fillna" in kwargs:
-        close.fillna(kwargs["fillna"], inplace=True)
+        ret_value.fillna(kwargs["fillna"], inplace=True)
     if "fill_method" in kwargs:
-        close.fillna(method=kwargs["fill_method"], inplace=True)
+        ret_value.fillna(method=kwargs["fill_method"], inplace=True)
 
     # Name and Categorize it
-    close.name = f"{_name}_{_props}"
-    close.category = "overlap"
+    ret_value.name = f"{_name}_{_props}"
+    ret_value.category = "statistics"
     
-    return close
+    return ret_value
 
 
-pricerange_hour.__doc__ = \
+diff_cols.__doc__ = \
 """Rolling Stats for calculation of various rolling stats
 
 The MACD is a popular indicator to that is used to identify a security's trend.
@@ -101,8 +92,8 @@ Returns:
 """
 # - Define a matching class method --------------------------------------------
 
-def pricerange_hour_method(self, length=None, offset=None, **kwargs):
+def diff_cols_method(self, offset_first=None, offset_second=None, **kwargs):
     first = self._get_column(kwargs.pop("first", "first"))
     second = self._get_column(kwargs.pop("second", "second"))
-    result = pricerange_hour(first=first, second=second,length=length, offset=offset, **kwargs)
+    result = diff_cols(first=first, second=second,offset_first=None, offset_second=None,**kwargs)
     return self._post_process(result, **kwargs)

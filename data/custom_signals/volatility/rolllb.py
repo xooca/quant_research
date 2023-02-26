@@ -7,9 +7,6 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-
-
-
 def rolllb(close, length=None, offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
