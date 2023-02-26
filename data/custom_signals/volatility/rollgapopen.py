@@ -19,9 +19,11 @@ def rollgapopen(close, frequency=None, offset=None, **kwargs):
     _name = "ROLLGO"
     _props = f"_{frequency}"
     frequency = 'd' if frequency is None else frequency
+    merge_dict={}
     close = close.resample(frequency).bfill().groupby(pd.Grouper(freq=frequency)).apply(lambda x: x[0]).subtract(
             close.resample(frequency).ffill().groupby(pd.Grouper(freq=frequency)).apply(lambda x: x[-1]).fillna(0))
-    
+    merge_dict.update({f"{_name}_{_props}": close[1:]})
+    close = pd.concat(merge_dict, axis=1)
     if offset != 0:
         close = close.shift(offset)
 
@@ -31,7 +33,7 @@ def rollgapopen(close, frequency=None, offset=None, **kwargs):
     if "fill_method" in kwargs:
         close.fillna(method=kwargs["fill_method"], inplace=True)
         
-    # Name and Categorize it
+    # Prepare DataFrame to return
     close.name = f"{_name}_{_props}"
     close.category = "volatility"
     return close
