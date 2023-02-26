@@ -12,10 +12,11 @@ def diff_cols(first,second, offset_first=None, offset_second=None,**kwargs):
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
     
     # Validate arguments    
-    close = verify_series(close, length)
+    first = verify_series(first, length)
+    second = verify_series(second, length)
     
 
-    if close is None: return
+    if first is None or second is None: return
     
     offset_first = 0 if kwargs.get('offset_first') is None else kwargs.get('offset_first')
     offset_second = 0 if kwargs.get('offset_second') is None else kwargs.get('offset_second')

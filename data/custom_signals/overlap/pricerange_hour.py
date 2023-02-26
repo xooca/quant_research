@@ -16,10 +16,11 @@ def pricerange_hour(first, second,length=None, offset=None, **kwargs):
     # Validate arguments
     length = int(length) if length and length > 0 else 20
     
-    close = verify_series(close, )
+    first = verify_series(first, )
+    second = verify_series(second, )
     offset = get_offset(offset)
 
-    if close is None: return
+    if first is None or second is None: return
     
     range_type = kwargs['range_type']
     r1 = kwargs.get('hour_range')[0]
