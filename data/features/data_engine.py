@@ -1925,21 +1925,20 @@ class feature_mart(DefineConfig):
             if tmpdf is None:
                 return
         for pipe in self.technical_indicator_pipeline:
-            if pipe in self.technical_indicator_pipeline_definations:
-                pipe_config = getattr(self,pipe)
-                pipe_config['name'] = f'pipe_desc_{pipe}'
-                pipe_desc = ta.Strategy(**pipe_config)
-                tmpdf.ta.strategy(pipe_desc,
-                                exclude=func_dict_args['exclude'],
-                                verbose=self.verbose, 
-                                timed=True,
-                                lookahead=False)
-                tmpdf = self.remove_ohlc_cols(tmpdf)
-                max_date,min_date = self.get_min_max_date(tmpdf)
-                self.create_column_and_save_to_table(
-                    time_stamp_col='timestamp', data=tmpdf)
-                for col in tmpdf.columns.tolist():
-                    self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list',feature_name=col,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            pipe_config = getattr(self,pipe)
+            pipe_config['name'] = f'pipe_desc_{pipe}'
+            pipe_desc = ta.Strategy(**pipe_config)
+            tmpdf.ta.strategy(pipe_desc,
+                            exclude=func_dict_args['exclude'],
+                            verbose=self.verbose, 
+                            timed=True,
+                            lookahead=False)
+            tmpdf = self.remove_ohlc_cols(tmpdf)
+            max_date,min_date = self.get_min_max_date(tmpdf)
+            self.create_column_and_save_to_table(
+                time_stamp_col='timestamp', data=tmpdf)
+            for col in tmpdf.columns.tolist():
+                self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list',feature_name=col,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
             if return_df:
                 df_list.append(tmpdf)
         if return_df:
