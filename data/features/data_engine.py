@@ -1978,7 +1978,7 @@ class feature_mart(DefineConfig):
                 else:
                     tmpdf_copy = tmpdf.copy()
                 pipe_config.update({'name':f'pipe_desc_{pipe}_{i}'})
-                pipe_config.update({'ta': getattr(self,pipe)})
+                pipe_config.update({'ta': [pipe_delta]})
                 i = i+1
                 print_log(f"Pipeline configuration is {pipe_config}")
                 pipe_desc = ta.Strategy(**pipe_config)
