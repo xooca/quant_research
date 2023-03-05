@@ -1918,7 +1918,7 @@ class feature_mart(DefineConfig):
         print_log(
             f"create_technical_indicator_using_pandasta called with arguments {func_dict_args}")
         self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
-        self.self.technical_indicator_pipeline = self.technical_indicator_pipeline if func_dict_args['technical_indicator_pipeline'] is None else func_dict_args['technical_indicator_pipeline']
+        self.technical_indicator_pipeline = self.technical_indicator_pipeline if func_dict_args['technical_indicator_pipeline'] is None else func_dict_args['technical_indicator_pipeline']
         df_list = []
         if tmpdf is None:
             tmpdf = self.get_ohlc_df()
