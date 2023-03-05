@@ -1917,7 +1917,7 @@ class feature_mart(DefineConfig):
         print_log("*"*100)
         print_log(
             f"create_technical_indicator_using_pandasta called with arguments {func_dict_args}")
-        self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
+        #self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
         self.technical_indicator_pipeline = self.technical_indicator_pipeline if func_dict_args['technical_indicator_pipeline'] is None else func_dict_args['technical_indicator_pipeline']
         df_list = []
         if tmpdf is None:
@@ -1925,8 +1925,8 @@ class feature_mart(DefineConfig):
             if tmpdf is None:
                 return
         for pipe in self.technical_indicator_pipeline:
-            if pipe in self.pandasta_pipe.pipeline_definations:
-                pipe_config = self.pandasta_pipe.pipeline_definations[pipe]
+            if pipe in self.technical_indicator_pipeline_definations:
+                pipe_config = getattr(self,pipe)
                 pipe_config['name'] = f'pipe_desc_{pipe}'
                 pipe_desc = ta.Strategy(**pipe_config)
                 tmpdf.ta.strategy(pipe_desc,
