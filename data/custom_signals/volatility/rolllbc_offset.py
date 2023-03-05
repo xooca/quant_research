@@ -62,12 +62,12 @@ def rolllbc_offset(close, length=None, offset=None, **kwargs):
             col_name = f"{_name}_{_props}_MEANDIFF".replace('-','_minus_')
             merge_dict.update({col_name: close.rolling(length).apply(lookback_mean)})
 
-        if function_option == 'maxmax' or function_option == 'all':
-            col_name = f"{_name}_{_props}_MAXMAX".replace('-','_minus_')
+        if function_option == 'maxmin' or function_option == 'all':
+            col_name = f"{_name}_{_props}_MAXMIN".replace('-','_minus_')
             merge_dict.update({col_name: close.rolling(length).apply(lookback_max_min)})
 
-        if function_option == 'minmin' or function_option == 'all':
-            col_name = f"{_name}_{_props}_MINMIN".replace('-','_minus_')
+        if function_option == 'minmax' or function_option == 'all':
+            col_name = f"{_name}_{_props}_MINMAX".replace('-','_minus_')
             merge_dict.update({col_name: close.rolling(length).apply(lookback_min_max)})
 
         if function_option == 'sumdiff'  or function_option == 'all':

@@ -7,12 +7,11 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-def previousday_range(close,length=None, offset=None, **kwargs):
+def previousday_range(close,offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
     
     # Validate arguments
-    length = int(length) if length and length > 0 else 20
     
     close = verify_series(close, )
     offset = get_offset(offset)
@@ -24,7 +23,7 @@ def previousday_range(close,length=None, offset=None, **kwargs):
     rsmpl = '1min' if kwargs.get('resample') is None else kwargs.get('resample')
     
     _name = "ROLLPRH"
-    _props = f"_{length}_{offset}_{freq}_{shift_val}_{rsmpl}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
+    _props = f"_{offset}_{freq}_{shift_val}_{rsmpl}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
     
     close = close.resample(rsmpl).ffill().groupby(pd.Grouper(freq=freq)).apply(lambda x: np.array(x)[-1]-np.array(x)[0]).shift(shift_val) 
     if offset != 0:
@@ -88,7 +87,7 @@ Returns:
 """
 # - Define a matching class method --------------------------------------------
 
-def previousday_range_method(self, length=None, offset=None, **kwargs):
+def previousday_range_method(self, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
-    result = previousday_range(first=first, second=second,length=length, offset=offset, **kwargs)
+    result = previousday_range(first=first, second=second, offset=offset, **kwargs)
     return self._post_process(result, **kwargs)
