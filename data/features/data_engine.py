@@ -1993,9 +1993,9 @@ class feature_mart(DefineConfig):
                                                      'lookahead':False}
                 tmpdf_copy = self.remove_ohlc_cols(tmpdf_copy)
                 max_date,min_date = self.get_min_max_date(tmpdf_copy)
-                self.create_column_and_save_to_table_v2(time_stamp_col='timestamp', data=tmpdf_copy)
+                self.create_column_and_save_to_table(time_stamp_col='timestamp', data=tmpdf_copy)
                 for col in tmpdf_copy.columns.tolist():
-                    self.save_feature_info_v2(function_name='create_technical_indicator_using_pandasta_list_one',
+                    self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list_one',
                                            feature_name=col,
                                            max_date=max_date,
                                            min_date=min_date,
