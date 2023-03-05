@@ -227,12 +227,12 @@ technical_indicator_pipeline_definations:
       - {"kind": "rolllbc", "close": "close", "length": 60, "offset": 20,"lookback_divider":5,"function_option_list":['diff','maxdiff'] ,"suffix": "close20"}
       - {"kind": "rolllbc", "close": "close", "length": 120, "offset": 20,"lookback_divider":5,"function_option_list":['diff','maxdiff'] ,"suffix": "close20"}
     pipe10:
-      - {"kind": "rolllbc_offset", "close": "close", "length": 15, "offset": None,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":10"suffix": "close"}
+      - {"kind": "rolllbc_offset", "close": "close", "length": 15, "offset": None,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":10,"suffix": "close"}
       - {"kind": "rolllbc_offset", "close": "close", "length": 30, "offset": None,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":10,"suffix": "close"}
       - {"kind": "rolllbc_offset", "close": "close", "length": 45, "offset": None,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":20,"suffix": "close"}
       - {"kind": "rolllbc_offset", "close": "close", "length": 60, "offset": None,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":30,"suffix": "close"}
       - {"kind": "rolllbc_offset", "close": "close", "length": 120, "offset": None,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":40,"suffix": "close"}
-      - {"kind": "rolllbc_offset", "close": "close", "length": 15, "offset": 20,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":10"suffix": "close20"}
+      - {"kind": "rolllbc_offset", "close": "close", "length": 15, "offset": 20,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":10,"suffix": "close20"}
       - {"kind": "rolllbc_offset", "close": "close", "length": 30, "offset": 20,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":10,"suffix": "close20"}
       - {"kind": "rolllbc_offset", "close": "close", "length": 45, "offset": 20,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":20,"suffix": "close20"}
       - {"kind": "rolllbc_offset", "close": "close", "length": 60, "offset": 20,"function_option_list":['diff','maxdiff'] ,"divider_offset_val":30,"suffix": "close20"}

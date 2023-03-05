@@ -1668,7 +1668,7 @@ class feature_mart(DefineConfig):
                 ddu.alter_table(self.db_conection,
                                 table_name, alter_arg=alter_arg)
                                   
-    def create_column_and_save_to_table(self, time_stamp_col, data):
+    def create_column_and_save_to_table(self, time_stamp_col, data,exclude_cols=None):
         print_log(f"Shape of the dataframe before join {data.shape}")
         column_status= False
         if len(data) > 0:
@@ -1678,6 +1678,9 @@ class feature_mart(DefineConfig):
             data = data.reset_index(drop=True)
             #print_log(f"Shape of the dataframe before join {data.shape}")
             column_names = [col for col in data.columns.tolist() if col != time_stamp_col]
+            if exclude_cols is not None:
+                column_names = [col for col in data.columns.tolist() if col not in exclude_cols]
+
             for column_name in column_names:
                 print_log(f"Data type of {column_name} : {data[column_name].dtype}")
                 data_type = self.get_duck_db_dtype(data[column_name])
@@ -1717,6 +1720,7 @@ class feature_mart(DefineConfig):
             data = data.reset_index(drop=True)
             
             column_names = [col for col in data.columns.tolist() if col != time_stamp_col]
+            column_names = [col for col in data.columns.tolist() if col not in ['close','open','ticker','timestamp','high','low']]
             try:
                 features_with_date = self.get_features_with_load_date(feature_type=None,feature_cols=column_names,
                                                                     return_load_date_for_ohlc=False)
@@ -1935,10 +1939,11 @@ class feature_mart(DefineConfig):
                             verbose=self.verbose, 
                             timed=True,
                             lookahead=False)
+            func_dict_args['pipe_config'] = pipe_config
+            func_dict_args['strategy_config'] = {'exclude':func_dict_args['exclude'],'verbose':self.verbose,'timed':True,'lookahead':False}
             tmpdf = self.remove_ohlc_cols(tmpdf)
             max_date,min_date = self.get_min_max_date(tmpdf)
-            self.create_column_and_save_to_table(
-                time_stamp_col='timestamp', data=tmpdf)
+            self.create_column_and_save_to_table(time_stamp_col='timestamp', data=tmpdf)
             for col in tmpdf.columns.tolist():
                 self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list',feature_name=col,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
             if return_df:
@@ -1946,6 +1951,62 @@ class feature_mart(DefineConfig):
         if return_df:
             return df_list
         del tmpdf
+
+    def create_technical_indicator_using_pandasta_list_one(self, func_dict_args, tmpdf=None, return_df=False):
+        # create_technical_indicator_using_pandasta_args= {'exclude':["jma","pvo","vwap","vwma","ad","adosc","aobv","cmf","efi","eom","kvo","mfi","nvi","obv","pvi","pvol","pvr","pvt"]}
+        import pandas_ta as ta
+        print_log("*"*100)
+        print_log(f"create_technical_indicator_using_pandasta_list_one called with arguments {func_dict_args}")
+        #self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
+        self.technical_indicator_pipeline = self.technical_indicator_pipeline if func_dict_args['technical_indicator_pipeline'] is None else func_dict_args['technical_indicator_pipeline']
+        df_list = []
+        if tmpdf is None:
+            tmpdf = self.get_ohlc_df()
+            if tmpdf is None:
+                return
+        
+        for pipe in self.technical_indicator_pipeline:
+            print_log(f"Running technical indicator pipeline {pipe}")
+            
+            i = 1
+            pipe_config = {}
+            for pipe_delta in getattr(self,pipe):
+                if tmpdf is None:
+                    tmpdf_copy = self.get_ohlc_df()
+                    if tmpdf is None:
+                        return
+                else:
+                    tmpdf_copy = tmpdf.copy()
+                pipe_config.update({'name':f'pipe_desc_{pipe}_{i}'})
+                pipe_config.update({'ta': getattr(self,pipe)})
+                i = i+1
+                print_log(f"Pipeline configuration is {pipe_config}")
+                pipe_desc = ta.Strategy(**pipe_config)
+                tmpdf_copy.ta.strategy(pipe_desc,
+                                exclude=func_dict_args['exclude'],
+                                verbose=self.verbose, 
+                                timed=True,
+                                lookahead=False)
+                func_dict_args['pipe_config'] = pipe_config
+                func_dict_args['strategy_config'] = {'exclude':func_dict_args['exclude'],
+                                                     'verbose':self.verbose,'timed':True,
+                                                     'lookahead':False}
+                tmpdf_copy = self.remove_ohlc_cols(tmpdf_copy)
+                max_date,min_date = self.get_min_max_date(tmpdf_copy)
+                self.create_column_and_save_to_table_v2(time_stamp_col='timestamp', data=tmpdf_copy)
+                for col in tmpdf_copy.columns.tolist():
+                    self.save_feature_info_v2(function_name='create_technical_indicator_using_pandasta_list_one',
+                                           feature_name=col,
+                                           max_date=max_date,
+                                           min_date=min_date,
+                                           status='saved',
+                                           feature_args=func_dict_args)
+                if return_df:
+                    df_list.append(tmpdf_copy)
+                del tmpdf_copy
+        if return_df:
+            return df_list
+        #del tmpdf_copy
         
     def create_technical_indicator_using_signals(self, func_dict_args, tmpdf=None, return_df=False):
         # create_technical_indicator_using_signals_args= {'method_type':['volumn_','volatile_','transform_','cycle_','pattern_','stats_','math_','overlap_']}

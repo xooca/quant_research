@@ -78,7 +78,7 @@ class pipelines:
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
                                 'technical_indicator_pipeline' : [pipe]}
-                self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args, 
+                self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
                 self.save_check_point()
@@ -90,7 +90,7 @@ class pipelines:
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
                                 'technical_indicator_pipeline' : [pipe]}
-                self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args, 
+                self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
                 self.save_check_point() 
@@ -102,7 +102,7 @@ class pipelines:
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
                                 'technical_indicator_pipeline' : [pipe]}
-                self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args, 
+                self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
                 self.save_check_point()         
