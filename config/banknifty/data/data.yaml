@@ -63,7 +63,7 @@ technical_indicator_pipeline:
     - pipe5
     - pipe6
     - pipe7
-    
+
 technical_indicator_pipeline_definations:
     pipe1: 
       - {"kind": "ema","close": "close","length": 15, "offset": None,"suffix": "ema_close"}
@@ -176,20 +176,20 @@ technical_indicator_pipeline_definations:
       - {"kind": "true_range","high": "high","low":"low","close":"close","drift": 120, "offset": 20,"suffix": "hlc20"}
       - {"kind": "true_range","high": "high","low":"low","close":"close","drift": 240, "offset": 20,"suffix": "hlc20"}
 
-    pipe7:
-      - {"kind": "rvi","high": "high","low":"low","length": 15,"drift": 15, "offset": None,"suffix": "hl"}
-      - {"kind": "rvi","high": "high","low":"low","length": 30,"drift": 30, "offset": None,"suffix": "hl"}
-      - {"kind": "rvi","high": "high","low":"low","length": 45,"drift": 45, "offset": None,"suffix": "hl"}
-      - {"kind": "rvi","high": "high","low":"low","length": 60,"drift": 60, "offset": None,"suffix": "hl"}
-      - {"kind": "rvi","high": "high","low":"low","length": 120,"drift": 120, "offset": None,"suffix": "hl"}
-      - {"kind": "rvi","high": "high","low":"low","length": 240,"drift": 240, "offset": None,"suffix": "hl"}
+      pipe7:
+        - {"kind": "rvi","high": "high","low":"low","length": 15,"drift": 15, "offset": None,"suffix": "hl"}
+        - {"kind": "rvi","high": "high","low":"low","length": 30,"drift": 30, "offset": None,"suffix": "hl"}
+        - {"kind": "rvi","high": "high","low":"low","length": 45,"drift": 45, "offset": None,"suffix": "hl"}
+        - {"kind": "rvi","high": "high","low":"low","length": 60,"drift": 60, "offset": None,"suffix": "hl"}
+        - {"kind": "rvi","high": "high","low":"low","length": 120,"drift": 120, "offset": None,"suffix": "hl"}
+        - {"kind": "rvi","high": "high","low":"low","length": 240,"drift": 240, "offset": None,"suffix": "hl"}
 
-      - {"kind": "rvi","high": "high","low":"low","length": 15,"drift": 15, "offset": 20,"suffix": "hl20"}
-      - {"kind": "rvi","high": "high","low":"low","length": 30,"drift": 30, "offset": 20,"suffix": "hl20"}
-      - {"kind": "rvi","high": "high","low":"low","length": 45,"drift": 45, "offset": 20,"suffix": "hl20"}
-      - {"kind": "rvi","high": "high","low":"low","length": 60,"drift": 60, "offset": 20,"suffix": "hl20"}
-      - {"kind": "rvi","high": "high","low":"low","length": 120,"drift": 120, "offset": 20,"suffix": "hl20"}
-      - {"kind": "rvi","high": "high","low":"low","length": 240,"drift": 240, "offset": 20,"suffix": "hl20"}
+        - {"kind": "rvi","high": "high","low":"low","length": 15,"drift": 15, "offset": 20,"suffix": "hl20"}
+        - {"kind": "rvi","high": "high","low":"low","length": 30,"drift": 30, "offset": 20,"suffix": "hl20"}
+        - {"kind": "rvi","high": "high","low":"low","length": 45,"drift": 45, "offset": 20,"suffix": "hl20"}
+        - {"kind": "rvi","high": "high","low":"low","length": 60,"drift": 60, "offset": 20,"suffix": "hl20"}
+        - {"kind": "rvi","high": "high","low":"low","length": 120,"drift": 120, "offset": 20,"suffix": "hl20"}
+        - {"kind": "rvi","high": "high","low":"low","length": 240,"drift": 240, "offset": 20,"suffix": "hl20"}
 
 prediction_data_pipeline:
   predict_data_prefix: prediction
