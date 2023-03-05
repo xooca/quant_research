@@ -1911,6 +1911,41 @@ class feature_mart(DefineConfig):
             return tmpdf
         del tmpdf
 
+    def create_technical_indicator_using_pandasta_list(self, func_dict_args, tmpdf=None, return_df=False):
+        # create_technical_indicator_using_pandasta_args= {'exclude':["jma","pvo","vwap","vwma","ad","adosc","aobv","cmf","efi","eom","kvo","mfi","nvi","obv","pvi","pvol","pvr","pvt"]}
+        import pandas_ta as ta
+        print_log("*"*100)
+        print_log(
+            f"create_technical_indicator_using_pandasta called with arguments {func_dict_args}")
+        self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
+        self.self.technical_indicator_pipeline = self.technical_indicator_pipeline if func_dict_args['technical_indicator_pipeline'] is None else func_dict_args['technical_indicator_pipeline']
+        df_list = []
+        if tmpdf is None:
+            tmpdf = self.get_ohlc_df()
+            if tmpdf is None:
+                return
+        for pipe in self.technical_indicator_pipeline:
+            if pipe in self.pandasta_pipe.pipeline_definations:
+                pipe_config = self.pandasta_pipe.pipeline_definations[pipe]
+                pipe_config['name'] = f'pipe_desc_{pipe}'
+                pipe_desc = ta.Strategy(**pipe_config)
+                tmpdf.ta.strategy(pipe_desc,
+                                exclude=func_dict_args['exclude'],
+                                verbose=self.verbose, 
+                                timed=True,
+                                lookahead=False)
+                tmpdf = self.remove_ohlc_cols(tmpdf)
+                max_date,min_date = self.get_min_max_date(tmpdf)
+                self.create_column_and_save_to_table(
+                    time_stamp_col='timestamp', data=tmpdf)
+                for col in tmpdf.columns.tolist():
+                    self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list',feature_name=col,max_date=max_date,min_date=min_date,status='saved',feature_args=func_dict_args)
+            if return_df:
+                df_list.append(tmpdf)
+        if return_df:
+            return df_list
+        del tmpdf
+        
     def create_technical_indicator_using_signals(self, func_dict_args, tmpdf=None, return_df=False):
         # create_technical_indicator_using_signals_args= {'method_type':['volumn_','volatile_','transform_','cycle_','pattern_','stats_','math_','overlap_']}
         import pandas_ta as ta
