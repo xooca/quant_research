@@ -1915,8 +1915,7 @@ class feature_mart(DefineConfig):
         # create_technical_indicator_using_pandasta_args= {'exclude':["jma","pvo","vwap","vwma","ad","adosc","aobv","cmf","efi","eom","kvo","mfi","nvi","obv","pvi","pvol","pvr","pvt"]}
         import pandas_ta as ta
         print_log("*"*100)
-        print_log(
-            f"create_technical_indicator_using_pandasta called with arguments {func_dict_args}")
+        print_log(f"create_technical_indicator_using_pandasta_list called with arguments {func_dict_args}")
         #self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
         self.technical_indicator_pipeline = self.technical_indicator_pipeline if func_dict_args['technical_indicator_pipeline'] is None else func_dict_args['technical_indicator_pipeline']
         df_list = []
@@ -1924,9 +1923,12 @@ class feature_mart(DefineConfig):
             tmpdf = self.get_ohlc_df()
             if tmpdf is None:
                 return
+        pipe_config = {}
         for pipe in self.technical_indicator_pipeline:
-            pipe_config = getattr(self,pipe)
-            pipe_config['name'] = f'pipe_desc_{pipe}'
+            print_log(f"Running technical indicator pipeline {pipe}")
+            pipe_config.update({'name':f'pipe_desc_{pipe}'})
+            pipe_config.update({'ta': getattr(self,pipe)})
+            print_log(f"Pipeline configuration is {pipe_config}")
             pipe_desc = ta.Strategy(**pipe_config)
             tmpdf.ta.strategy(pipe_desc,
                             exclude=func_dict_args['exclude'],
