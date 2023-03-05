@@ -71,47 +71,41 @@ class pipelines:
         
         # Creation of technical indicators using pandata
         if self.techindicator1 == True:
-            pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
-                                          "ad","adosc", "aobv", "cmf", "efi",
-                                          "eom", "kvo", "mfi", "nvi", "obv",
-                                          "pvi", "pvol", "pvr", "pvt"],
-                              'technical_indicator_pipeline' : ['pipe1']}
-            self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args, 
-                                                                             tmpdf=None, 
-                                                                             return_df=False)
-            self.save_check_point()
-            pandas_ta_args['technical_indicator_pipeline'] = ['pipe2']
-            self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args,
-                                                                             tmpdf=None, 
-                                                                             return_df=False)
-            self.save_check_point()
-            pandas_ta_args['technical_indicator_pipeline'] = ['pipe3']
-            self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args,
-                                                                             tmpdf=None, 
-                                                                             return_df=False)
-            self.save_check_point()
-            pandas_ta_args['technical_indicator_pipeline'] = ['pipe4']
-            self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args,
-                                                                             tmpdf=None, 
-                                                                             return_df=False)
-            self.save_check_point()
-            pandas_ta_args['technical_indicator_pipeline'] = ['pipe5']
-            self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args,
-                                                                             tmpdf=None, 
-                                                                             return_df=False)
-            self.save_check_point()
-            pandas_ta_args['technical_indicator_pipeline'] = ['pipe6']
-            self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args,
-                                                                             tmpdf=None, 
-                                                                             return_df=False)
-            self.save_check_point()
-            pandas_ta_args['technical_indicator_pipeline'] = ['pipe7']
-            self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args,
-                                                                             tmpdf=None, 
-                                                                             return_df=False)
-            self.save_check_point()
-        
-        self.save_check_point()
+            pipes = ['pipe1','pipe2','pipe3','pipe4','pipe5','pipe6','pipe7']
+            for pipe in pipes:
+                pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
+                                            "ad","adosc", "aobv", "cmf", "efi",
+                                            "eom", "kvo", "mfi", "nvi", "obv",
+                                            "pvi", "pvol", "pvr", "pvt"],
+                                'technical_indicator_pipeline' : [pipe]}
+                self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args, 
+                                                                                tmpdf=None, 
+                                                                                return_df=False)
+                self.save_check_point()
+        if self.techindicator2 == True:
+            pipes = ['pipe8','pipe9','pipe10','pipe11','pipe12','pipe13','pipe14']
+            for pipe in pipes:
+                pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
+                                            "ad","adosc", "aobv", "cmf", "efi",
+                                            "eom", "kvo", "mfi", "nvi", "obv",
+                                            "pvi", "pvol", "pvr", "pvt"],
+                                'technical_indicator_pipeline' : [pipe]}
+                self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args, 
+                                                                                tmpdf=None, 
+                                                                                return_df=False)
+                self.save_check_point() 
+        if self.techindicator3 == True:
+            pipes = ['pipe15','pipe16','pipe17','pipe18']
+            for pipe in pipes:
+                pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
+                                            "ad","adosc", "aobv", "cmf", "efi",
+                                            "eom", "kvo", "mfi", "nvi", "obv",
+                                            "pvi", "pvol", "pvr", "pvt"],
+                                'technical_indicator_pipeline' : [pipe]}
+                self.feature_mart.create_technical_indicator_using_pandasta_list(pandas_ta_args, 
+                                                                                tmpdf=None, 
+                                                                                return_df=False)
+                self.save_check_point()         
         
         # Creation of timerseries splits features
         if self.time_splitter:
