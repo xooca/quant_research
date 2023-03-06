@@ -1955,6 +1955,9 @@ class feature_mart(DefineConfig):
     def create_technical_indicator_using_pandasta_list_one(self, func_dict_args, tmpdf=None, return_df=False):
         # create_technical_indicator_using_pandasta_args= {'exclude':["jma","pvo","vwap","vwma","ad","adosc","aobv","cmf","efi","eom","kvo","mfi","nvi","obv","pvi","pvol","pvr","pvt"]}
         import pandas_ta as ta
+        from pandas_ta.custom import import_dir
+        import_dir(func_dict_args.get('custom_signal_path'))
+        #import_dir("/content/drive/MyDrive/Work/quantitative_research/data/custom_signals")
         print_log("*"*100)
         print_log(f"create_technical_indicator_using_pandasta_list_one called with arguments {func_dict_args}")
         #self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
