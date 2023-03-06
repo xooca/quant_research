@@ -77,7 +77,10 @@ class pipelines:
                                             "ad","adosc", "aobv", "cmf", "efi",
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
-                                'technical_indicator_pipeline' : [pipe]}
+                                'technical_indicator_pipeline' : [pipe],
+                                'custom_signal_path': "/content/drive/MyDrive/Work/quantitative_research/data/custom_signals"
+
+                                }
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
@@ -89,7 +92,9 @@ class pipelines:
                                             "ad","adosc", "aobv", "cmf", "efi",
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
-                                'technical_indicator_pipeline' : [pipe]}
+                                'technical_indicator_pipeline' : [pipe],
+                                'custom_signal_path': "/content/drive/MyDrive/Work/quantitative_research/data/custom_signals"
+                                }
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
@@ -101,7 +106,8 @@ class pipelines:
                                             "ad","adosc", "aobv", "cmf", "efi",
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
-                                'technical_indicator_pipeline' : [pipe]}
+                                'technical_indicator_pipeline' : [pipe],
+                                'custom_signal_path': "/content/drive/MyDrive/Work/quantitative_research/data/custom_signals"}
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
