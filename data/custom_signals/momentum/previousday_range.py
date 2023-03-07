@@ -23,7 +23,7 @@ def previousday_range(close,offset=None, **kwargs):
     rsmpl = '1min' if kwargs.get('resample') is None else kwargs.get('resample')
     
     _name = "ROLLPRH"
-    _props = f"_{offset}_{freq}_{shift_val}_{rsmpl}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
+    _props = f"_{offset}_{freq}_{shift_val}_{rsmpl}".replace("-", '_minus_')
     
     close = close.resample(rsmpl).ffill().groupby(pd.Grouper(freq=freq)).apply(lambda x: np.array(x)[-1]-np.array(x)[0]).shift(shift_val) 
     if offset != 0:
