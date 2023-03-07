@@ -1974,10 +1974,13 @@ class feature_mart(DefineConfig):
             
             i = 1
             pipe_config = {}
+            pipe_delta_pgm = {}
             for pipe_delta in getattr(self,pipe):
                 for k,v in pipe_delta.items():
                     if v in ['None','none','NONE']:
-                        pipe_delta[k] = None
+                        pipe_delta_pgm[k] = None
+                    else:
+                        pipe_delta_pgm[k] = v
                 if tmpdf is None:
                     tmpdf_copy = self.get_ohlc_df()
                     if tmpdf is None:
@@ -1985,7 +1988,7 @@ class feature_mart(DefineConfig):
                 else:
                     tmpdf_copy = tmpdf.copy()
                 pipe_config.update({'name':f'pipe_desc_{pipe}_{i}'})
-                pipe_config.update({'ta': [pipe_delta]})
+                pipe_config.update({'ta': [pipe_delta_pgm]})
                 i = i+1
                 print_log(f"Pipeline configuration is {pipe_config}")
                 pipe_desc = ta.Strategy(**pipe_config)
@@ -1994,6 +1997,7 @@ class feature_mart(DefineConfig):
                                 verbose=self.verbose, 
                                 timed=True,
                                 lookahead=False)
+                pipe_config.update({'ta': [pipe_delta]})
                 func_dict_args['pipe_config'] = pipe_config
                 func_dict_args['strategy_config'] = {'exclude':func_dict_args['exclude'],
                                                      'verbose':self.verbose,'timed':True,
