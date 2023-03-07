@@ -96,8 +96,6 @@ class pipelines:
                                 'technical_indicator_pipeline' : [pipe],
                                 'custom_signal_path': "/content/drive/MyDrive/Work/quantitative_research/data/custom_signals"
                                 }
-                if pipe == 'pipe14':
-                    pandas_ta_args['']=
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
