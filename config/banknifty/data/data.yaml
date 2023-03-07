@@ -267,51 +267,47 @@ technical_indicator_pipeline_definations:
       - {"kind": "rollrank", "close": "close", "length": 120, "offset": 20,"suffix": "close20"}
 
     pipe14:
-      - {"kind": "rollvals", "close": "close","length":15, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":30, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":45, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":60, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":120, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":15, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":30, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":45, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":60, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":120, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length_list": ['10min', '30min'], "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length_list": ['5min', '30min'], "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length_list": ['15min', '60min'], "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length_list": ['10min', '30min'], "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length_list": ['5min', '30min'], "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length_list": ['15min', '60min'], "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
 
     pipe15:
-      - {"kind": "rollpercent_change", "close": "close","length":15, "offset": None,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length":30, "offset": None,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length":45, "offset": None,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length":60, "offset": None,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length":120,"offset": None, "fill_method":"pad", "limit": None, "freq": None,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 15, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 30, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 45, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 60, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 120,"offset": None, "fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
 
-      - {"kind": "rollpercent_change", "close": "close","length":15,"offset": 20, "fill_method":"pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length":30, "offset": 20,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length":45, "offset": 20,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length":60, "offset": 20,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length":120,"offset": 20, "fill_method":"pad", "limit": None, "freq": None,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 15,"offset": 20, "fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 30, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 45, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 60, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 120,"offset": 20, "fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
 
     pipe16:
-      - {"kind": "price_breach", "close": "close","length":15, "offset": None,"breach_type":"mean","suffix": "close"}
-      - {"kind": "price_breach", "close": "close","length":30, "offset": None,"breach_type":"mean","suffix": "close"}
-      - {"kind": "price_breach", "close": "close","length":45, "offset": None,"breach_type":"mean","suffix": "close"}
-      - {"kind": "price_breach", "close": "close","length":60, "offset": None,"breach_type":"mean","suffix": "close"}
-      - {"kind": "price_breach", "close": "close","length":120, "offset": None,"breach_type":"mean","suffix": "close"}
+      - {"kind": "price_breach", "close": "close","length": 15, "offset": None,"breach_type":"mean","suffix": "close"}
+      - {"kind": "price_breach", "close": "close","length": 30, "offset": None,"breach_type":"mean","suffix": "close"}
+      - {"kind": "price_breach", "close": "close","length": 45, "offset": None,"breach_type":"mean","suffix": "close"}
+      - {"kind": "price_breach", "close": "close","length": 60, "offset": None,"breach_type":"mean","suffix": "close"}
+      - {"kind": "price_breach", "close": "close","length": 120, "offset": None,"breach_type":"mean","suffix": "close"}
 
-      - {"kind": "price_breach", "close": "close","length":15, "offset": 20,"breach_type":"mean","suffix": "close20"}
-      - {"kind": "price_breach", "close": "close","length":30, "offset": 20,"breach_type":"mean","suffix": "close20"}
-      - {"kind": "price_breach", "close": "close","length":45, "offset": 20,"breach_type":"mean","suffix": "close20"}
-      - {"kind": "price_breach", "close": "close","length":60, "offset": 20,"breach_type":"mean","suffix": "close20"}
-      - {"kind": "price_breach", "close": "close","length":120, "offset": 20,"breach_type":"mean","suffix": "close20"}
+      - {"kind": "price_breach", "close": "close","length": 15, "offset": 20,"breach_type":"mean","suffix": "close20"}
+      - {"kind": "price_breach", "close": "close","length": 30, "offset": 20,"breach_type":"mean","suffix": "close20"}
+      - {"kind": "price_breach", "close": "close","length": 45, "offset": 20,"breach_type":"mean","suffix": "close20"}
+      - {"kind": "price_breach", "close": "close","length": 60, "offset": 20,"breach_type":"mean","suffix": "close20"}
+      - {"kind": "price_breach", "close": "close","length": 120, "offset": 20,"breach_type":"mean","suffix": "close20"}
 
     pipe17:
-      - {"kind": "pricerange_hour", "first": "high","second":"low", "offset": None,"range_type": 'price_deviation_max_first_col', "hour_range": ['09:00', '10:30'],"suffix": "close"}
-      - {"kind": "pricerange_hour", "first": "high","second":"low", "offset": None,"range_type": 'price_deviation_max_first_col', "hour_range": ['11:00', '12:00'],"suffix": "close"}
-      - {"kind": "pricerange_hour", "first": "high","second":"low", "offset": None,"range_type": 'price_deviation_max_first_col', "hour_range": ['12:00', '01:00'],"suffix": "close"}      
+      - {"kind": "pricerange_hour", "first": "high","second": "low", "offset": None,"range_type": 'price_deviation_max_first_col', "hour_range": ['09:00', '10:30'],"suffix": "close"}
+      - {"kind": "pricerange_hour", "first": "high","second": "low", "offset": None,"range_type": 'price_deviation_max_first_col', "hour_range": ['11:00', '12:00'],"suffix": "close"}
+      - {"kind": "pricerange_hour", "first": "high","second": "low", "offset": None,"range_type": 'price_deviation_max_first_col', "hour_range": ['12:00', '01:00'],"suffix": "close"}      
 
     pipe18:
-      - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'd' ,"shift_val":1,"resample":'1min',"suffix": "close"}
-      - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'w' ,"shift_val":1,"resample":'1min',"suffix": "close"}
+      - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'd' ,"shift_val": 1,"resample": '1min',"suffix": "close"}
+      - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'w' ,"shift_val": 1,"resample": '1min',"suffix": "close"}
 
 prediction_data_pipeline:
   predict_data_prefix: prediction

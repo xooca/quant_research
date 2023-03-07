@@ -7,25 +7,25 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-def rollvals(close, length=None, offset=None, **kwargs):
+def rollvals(close, length_list=None, offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
     def ranking(s):
         return s.rank(ascending=False)[len(s)-1]
     
     # Validate arguments
-    length = int(length) if length and length > 0 else 20
-    
+    length_list = ['10min', '30min'] if length_list is None or len(length_list) ==0 else length_list
+    length_str = 'None' if length_list is None or len(length_list) ==0 else ''.join(length_list)
     close = verify_series(close, )
     offset = get_offset(offset)
 
     if close is None: return
     
     _name = "ROLLVALS"
-    _props = f"_{length}_{offset}"
+    _props = f"_{length_str}_{offset}"
     eval_stmt = ''
-    for oper, agg in zip(kwargs['oper'], kwargs['aggs']):
-        tmpst = f"close.rolling('{length}', min_periods=1).{agg}() {oper}"
+    for lt, oper, agg in zip(length_list,kwargs['oper'], kwargs['aggs']):
+        tmpst = f"close.rolling('{lt}', min_periods=1).{agg}() {oper}"
         eval_stmt = eval_stmt + tmpst
 
     print(eval_stmt[:-1])
@@ -92,7 +92,7 @@ Returns:
 """
 # - Define a matching class method --------------------------------------------
 
-def rollvals_method(self, length=None, offset=None, **kwargs):
+def rollvals_method(self, length_list=None, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
-    result = rollvals(close=close, length=length, offset=offset, **kwargs)
+    result = rollvals(close=close, length_list=length_list, offset=offset, **kwargs)
     return self._post_process(result, **kwargs)
