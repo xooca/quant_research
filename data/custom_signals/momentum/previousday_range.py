@@ -7,14 +7,13 @@ from pandas_ta.utils import get_offset, verify_series, signals
 import numpy as np
 import pandas as pd
 
-def previousday_range(first=first, second=second,offset=None, **kwargs):
+def previousday_range(close=close,offset=None, **kwargs):
 
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
     
     # Validate arguments
     
-    first = verify_series(first)
-    second = verify_series(second)
+    close = verify_series(close)    
     offset = get_offset(offset)
 
     if close is None: return
@@ -90,5 +89,5 @@ Returns:
 
 def previousday_range_method(self, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
-    result = previousday_range(first=first, second=second, offset=offset, **kwargs)
+    result = previousday_range(close=close,offset=offset, **kwargs)
     return self._post_process(result, **kwargs)
