@@ -267,16 +267,16 @@ technical_indicator_pipeline_definations:
       - {"kind": "rollrank", "close": "close", "length": 120, "offset": 20,"suffix": "close20"}
 
     pipe14:
-      - {"kind": "rollvals", "close": "close","length":15, "offset": None,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":30, "offset": None,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":45, "offset": None,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":60, "offset": None,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":120, "offset": None,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close"}
-      - {"kind": "rollvals", "close": "close","length":15, "offset": 20,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":30, "offset": 20,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":45, "offset": 20,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":60, "offset": 20,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close20"}
-      - {"kind": "rollvals", "close": "close","length":120, "offset": 20,"oper":['10min', '30min'],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length":15, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length":30, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length":45, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length":60, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length":120, "offset": None,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close"}
+      - {"kind": "rollvals", "close": "close","length":15, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length":30, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length":45, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length":60, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
+      - {"kind": "rollvals", "close": "close","length":120, "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
 
     pipe15:
       - {"kind": "rollpercent_change", "close": "close","length":15, "offset": None,"fill_method":"pad", "limit": None, "freq": None,"suffix": "close"}
