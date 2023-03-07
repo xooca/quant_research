@@ -23,7 +23,6 @@ def rollvals(close, length=None, offset=None, **kwargs):
     
     _name = "ROLLVALS"
     _props = f"_{length}_{offset}"
-    
     eval_stmt = ''
     for oper, agg in zip(kwargs['oper'], kwargs['aggs']):
         tmpst = f"close.rolling('{length}', min_periods=1).{agg}() {oper}"
