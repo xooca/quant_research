@@ -95,5 +95,5 @@ Returns:
 
 def rollvals_method(self, length=None, offset=None, **kwargs):
     close = self._get_column(kwargs.pop("close", "close"))
-    result = roll_vals(close=close, length=length, offset=offset, **kwargs)
+    result = rollvals(close=close, length=length, offset=offset, **kwargs)
     return self._post_process(result, **kwargs)

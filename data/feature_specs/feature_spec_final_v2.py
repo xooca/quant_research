@@ -86,7 +86,8 @@ class pipelines:
                                                                                 return_df=False)
                 self.save_check_point()
         if self.techindicator2 == True:
-            pipes = ['pipe8','pipe9','pipe10','pipe11','pipe12','pipe13','pipe14']
+            #pipes = ['pipe8','pipe9','pipe10','pipe11','pipe12','pipe13','pipe14']
+            pipes = ['pipe14']
             for pipe in pipes:
                 pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
                                             "ad","adosc", "aobv", "cmf", "efi",
