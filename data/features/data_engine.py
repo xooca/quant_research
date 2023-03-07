@@ -1569,8 +1569,9 @@ class feature_mart(DefineConfig):
     
     def save_feature_info(self,function_name,feature_name,max_date,min_date,status,feature_args,column_type='feature'):
         feature_args = {x:y if y is not None else str(y) for x,y in feature_args.items() }
-        if feature_name in ['close','open','ticker','timestamp','high','low']:
+        if feature_name in ['close','open','ticker','high','low']:
             column_type = 'ohlc_column'
+        
         if self.first_time_train_feature_info_status is False and feature_name in self.features_from_table:
             sql = f'''
                 UPDATE {self.train_feature_info_table}
@@ -2000,6 +2001,8 @@ class feature_mart(DefineConfig):
                 tmpdf_copy = self.remove_ohlc_cols(tmpdf_copy)
                 max_date,min_date = self.get_min_max_date(tmpdf_copy)
                 self.create_column_and_save_to_table(time_stamp_col='timestamp', data=tmpdf_copy)
+                columns_to_add = tmpdf_copy.columns.tolist()
+                columns_to_add = [col for col in columns_to_add if col not in ['timestamp'] + list(self.initial_columns)]
                 for col in tmpdf_copy.columns.tolist():
                     self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list_one',
                                            feature_name=col,
