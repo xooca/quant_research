@@ -275,17 +275,17 @@ technical_indicator_pipeline_definations:
       - {"kind": "rollvals", "close": "close","length_list": ['15min', '60min'], "offset": 20,"oper":['-', '='],"aggs":['mean', 'max'],"suffix": "close20"}
 
     pipe15:
-      - {"kind": "rollpercent_change", "close": "close","length": 15, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length": 30, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length": 45, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length": 60, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
-      - {"kind": "rollpercent_change", "close": "close","length": 120,"offset": None, "fill_method": "pad", "limit": None, "freq": None,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 15, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 30, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 45, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 60, "offset": None,"fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close"}
+      - {"kind": "rollpercent_change", "close": "close","length": 120,"offset": None, "fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close"}
 
-      - {"kind": "rollpercent_change", "close": "close","length": 15,"offset": 20, "fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length": 30, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length": 45, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length": 60, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
-      - {"kind": "rollpercent_change", "close": "close","length": 120,"offset": 20, "fill_method": "pad", "limit": None, "freq": None,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 15,"offset": 20, "fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 30, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 45, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 60, "offset": 20,"fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close20"}
+      - {"kind": "rollpercent_change", "close": "close","length": 120,"offset": 20, "fill_method": "pad", "limit": None, "freq": None,"multiplier":100,"suffix": "close20"}
 
     pipe16:
       - {"kind": "price_breach", "close": "close","length": 15, "offset": None,"breach_type":"mean","suffix": "close"}
