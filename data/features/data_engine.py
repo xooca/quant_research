@@ -1974,9 +1974,9 @@ class feature_mart(DefineConfig):
             i = 1
             pipe_config = {}
             for pipe_delta in getattr(self,pipe):
-                for i,k in pipe_delta.items():
-                    if k in ['None','none','NONE']:
-                        pipe_delta[i] = None
+                for k,v in pipe_delta.items():
+                    if v in ['None','none','NONE']:
+                        pipe_delta[k] = None
                 if tmpdf is None:
                     tmpdf_copy = self.get_ohlc_df()
                     if tmpdf is None:
