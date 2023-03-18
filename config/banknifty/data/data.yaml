@@ -75,7 +75,11 @@ technical_indicator_pipeline:
     - pipe17
     - pipe18
     - pipe19
-
+    - pipe20
+    - pipe21
+    - pipe22
+    - pipe23
+       
 technical_indicator_pipeline_definations:
     pipe1: 
       - {"kind": "ema","close": "close","length": 15, "offset": None,"suffix": "ema_close"}
@@ -311,10 +315,6 @@ technical_indicator_pipeline_definations:
       - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'w' ,"shift_val": 1,"resample": '1min',"suffix": "close"}
 
     pipe19:
-      - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'd' ,"shift_val": 1,"resample": '1min',"suffix": "close"}
-      - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'w' ,"shift_val": 1,"resample": '1min',"suffix": "close"}
-
-    pipe20:
       - {"kind": "diff_cols", "first": "EMA_30_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "30_15"}
 
       - {"kind": "diff_cols", "first": "EMA_45_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "45_15"}
@@ -379,7 +379,7 @@ technical_indicator_pipeline_definations:
 
       - {"kind": "diff_cols", "first": "RSI_240_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_15"}
 
-
+    pipe20:
       - {"kind": "diff_cols", "first": "RSI_30_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "30_15_20_10"}
 
       - {"kind": "diff_cols", "first": "RSI_45_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "45_15_20_10"}
@@ -456,7 +456,7 @@ technical_indicator_pipeline_definations:
 
       - {"kind": "diff_cols", "first": "SUPERTd_120_30_supertrend_close", "second": "SUPERTl_15_30_supertrend_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "super_diff21"}
 
-
+    pipe21:
       - {"kind": "diff_cols", "first": "SUPERT_30_30_supertrend_close20", "second": "SUPERT_15_30_supertrend_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "super_diff22"}
 
       - {"kind": "diff_cols", "first": "SUPERTd_30_30_supertrend_close20", "second": "SUPERTd_15_30_supertrend_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "super_diff23"}
@@ -502,7 +502,7 @@ technical_indicator_pipeline_definations:
 
       - {"kind": "diff_cols", "first": "SUPERTl_15_30_supertrend_close", "second": "SUPERTl_15_30_supertrend_close", "offset_first": 60,"offset_second": 15 ,"shift_val": 1,"resample": '1min',"suffix": "super_diff37"}
 
-
+    pipe22:
       - {"kind": "diff_cols", "first": "BBL_30_20_close", "second": "BBL_15_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb1"}
       - {"kind": "diff_cols", "first": "BBL_30_20_close", "second": "BBL_15_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb2"}
       - {"kind": "diff_cols", "first": "BBL_60_20_close", "second": "BBL_15_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb3"}
@@ -558,7 +558,7 @@ technical_indicator_pipeline_definations:
       - {"kind": "diff_cols", "first": "BBU_60_20_close", "second": "BBM_30_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb38"}
       - {"kind": "diff_cols", "first": "BBU_120_20_close", "second": "BBM_30_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb39"}
       - {"kind": "diff_cols", "first": "BBU_240_20_close", "second": "BBM_30_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb40"}
-
+    pipe23:
       - {"kind": "diff_cols", "first": "BBU_30_20_close20", "second": "BBM_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb41"}
       - {"kind": "diff_cols", "first": "BBU_45_20_close20", "second": "BBM_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb42"}
       - {"kind": "diff_cols", "first": "BBU_60_20_close20", "second": "BBM_30_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb43"}
