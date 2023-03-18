@@ -610,8 +610,6 @@ technical_indicator_pipeline_definations:
       - {"kind": "diff_cols", "first": "RVI_60_hl20", "second": "RVI_60_hl", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rv10"}
       - {"kind": "diff_cols", "first": "RVI_120_hl20", "second": "RVI_120_hl", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rv11"}
       - {"kind": "diff_cols", "first": "RVI_240_hl20", "second": "RVI_240_hl", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rv12"}
-
-
 prediction_data_pipeline:
   predict_data_prefix: prediction
   predict_base_path: "${data.paths.base_data_loc}${data.prediction_data_pipeline.predict_data_prefix}/"
