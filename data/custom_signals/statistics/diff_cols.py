@@ -24,7 +24,7 @@ def diff_cols(first,second, offset_first=None, offset_second=None,**kwargs):
     offset_second = get_offset(offset_second)
     
     _name = "ROLLPRH"
-    _props = f"_{length}_{offset}_{freq}_{shift_val}_{rsmpl}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
+    _props = f"_{length}_{offset_first}_{offset_first}_{freq}_{shift_val}_{rsmpl}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
     
     if offset_first != 0:
         first = first.shift(offset_first)
