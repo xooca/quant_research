@@ -74,6 +74,7 @@ technical_indicator_pipeline:
     - pipe16
     - pipe17
     - pipe18
+    - pipe19
 
 technical_indicator_pipeline_definations:
     pipe1: 
