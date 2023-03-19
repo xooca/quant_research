@@ -230,6 +230,10 @@ class base_feature_selection(DefineConfig):
             df_features = self.get_info_for_feature_selection(label=label,time_split=final_split)
             label_mapper = self.get_label_mapper(df_features,label)
             df_features[label] = df_features[label].map(label_mapper)
+            final_cols = [col for col in df_features.columns.tolist() if col not in ['close','high','low','open','timestamp']] + [label]
+            print(f"df_features before filtering ohlc columns  : {df_features.shape}")
+            df_features = df_features[final_cols]
+            print(f"df_features after filtering ohlc columns  : {df_features.shape}")
             selected_features = self.perform_feature_selection(df_features,label)
             for col,f_imp in selected_features.items():
                 self.upsert_feature_selection_table(label_name=label,
