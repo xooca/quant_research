@@ -1964,10 +1964,10 @@ class feature_mart(DefineConfig):
         #self.pandasta_pipe = func_dict_args.get('pandasta_pipe')
         self.technical_indicator_pipeline = self.technical_indicator_pipeline if func_dict_args['technical_indicator_pipeline'] is None else func_dict_args['technical_indicator_pipeline']
         df_list = []
-        if tmpdf is None:
-            tmpdf = self.get_ohlc_df()
-            if tmpdf is None:
-                return
+        #if tmpdf is None:
+        #    tmpdf = self.get_ohlc_df()
+        #    if tmpdf is None:
+        #        return
         
         for pipe in self.technical_indicator_pipeline:
             print_log(f"Running technical indicator pipeline {pipe}")
@@ -1981,14 +1981,20 @@ class feature_mart(DefineConfig):
                         pipe_delta_pgm[k] = None
                     else:
                         pipe_delta_pgm[k] = v
+
+                pipe_config.update({'name':f'pipe_desc_{pipe}_{i}'})
+                pipe_config.update({'ta': [pipe_delta_pgm]})
+                tmpdf_cols_val=['timestamp']
+                for col in self.tmpdf_cols:
+                    if pipe_config['ta'][0].get(col) is not None:
+                        tmpdf_cols_val.append(pipe_config['ta'][0].get(col))
+                
                 if tmpdf is None:
                     tmpdf_copy = self.get_ohlc_df()
                     if tmpdf is None:
                         return
                 else:
-                    tmpdf_copy = tmpdf.copy()
-                pipe_config.update({'name':f'pipe_desc_{pipe}_{i}'})
-                pipe_config.update({'ta': [pipe_delta_pgm]})
+                    tmpdf_copy = tmpdf[tmpdf_cols_val]
                 i = i+1
                 print_log(f"Pipeline configuration is {pipe_config}")
                 pipe_desc = ta.Strategy(**pipe_config)

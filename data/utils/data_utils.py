@@ -316,7 +316,7 @@ class initial_data_setup(DefineConfig):
 class execute_data_pipeline:
     def __init__(self, master_config_path, master_config_name, db_conection, database_path,feature_spec_name, train_feature_table=None,train_feature_info_table=None,
                  techindicator1=True,techindicator2=True,techindicator3=True,time_splitter=True,column_unstable=True,
-                 label_creation=True,update_unstable=True,verbose=True):
+                 label_creation=True,update_unstable=True,load_tmp=False,verbose=True):
         # DefineConfig.__init__(self,master_config_path,master_config_name)
         #self.db_conection = db_conection
         self.feature_spec_name = feature_spec_name
@@ -336,6 +336,7 @@ class execute_data_pipeline:
                                                             column_unstable,
                                                             label_creation,
                                                             update_unstable,
+                                                            load_tmp,
                                                             verbose)
 
     def run_pipelines(self):

@@ -12,8 +12,8 @@ def diff_cols(first,second, offset_first=None, offset_second=None,**kwargs):
     """Indicator: Moving Average, Convergence/Divergence (MACD)"""
     
     # Validate arguments    
-    first = verify_series(first, )
-    second = verify_series(second, )
+    first = verify_series(first)
+    second = verify_series(second)
     
 
     if first is None or second is None: return
@@ -23,8 +23,8 @@ def diff_cols(first,second, offset_first=None, offset_second=None,**kwargs):
     offset_first = get_offset(offset_first)
     offset_second = get_offset(offset_second)
     
-    _name = "ROLLPRH"
-    _props = f"_{length}_{offset_first}_{offset_first}_{freq}_{shift_val}_{rsmpl}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
+    _name = "ROLLDIFF"
+    _props = f"_{offset_first}_{offset_first}_{kwargs.get('shift_val')}_{kwargs.get('resample')}".replace("-", '_minus_')
     
     if offset_first != 0:
         first = first.shift(offset_first)

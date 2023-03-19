@@ -10,6 +10,8 @@ from hydra import initialize, initialize_config_module, initialize_config_dir, c
 from omegaconf import OmegaConf
 import data.utils.data_utils as du
 import duckdb
+import data.utils.duckdb_utils as ddu
+
 
 
 class pipelines:
@@ -24,6 +26,7 @@ class pipelines:
                  column_unstable=True,
                  label_creation=True,
                  update_unstable=True,
+                 load_tmp=False,
                  verbose=True):
         
         self.database_path = database_path
@@ -44,7 +47,17 @@ class pipelines:
         self.column_unstable = column_unstable
         self.label_creation = label_creation
         self.update_unstable = update_unstable
-        
+        if load_tmp is not None:
+            all_cols = list(self.feature_mart.temp_df_cols)
+            all_cols = ','.join(self.feature_mart.temp_df_cols)
+            sql = f'''
+                    select timestamp,open,high,close,low,{all_cols} from {train_feature_table}
+                    '''
+            print(f"Tempdf sql is {sql}")
+            self.tmpdf = ddu.load_table_df(self.db_conection,table_name=None,column_names=None,filter=None,load_sql=sql)
+            self.tmpdf = self.tmpdf.sort_values(by ='timestamp',ascending=True)
+            self.tmpdf = self.tmpdf.drop_duplicates(subset=['timestamp'], keep='first')
+            print(f"Loaded tempdf {self.tmpdf.shape}")
         
     def save_check_point(self,end_conection=False):
         if self.database_path is not None:
@@ -100,6 +113,8 @@ class pipelines:
                                                                                 tmpdf=None, 
                                                                                 return_df=False)
                 self.save_check_point() 
+                
+        
         if self.techindicator3 == True:
             #pipes = ['pipe15','pipe16','pipe17','pipe18']
             pipes = ['pipe19','pipe20','pipe21','pipe22','pipe23']
@@ -111,7 +126,7 @@ class pipelines:
                                 'technical_indicator_pipeline' : [pipe],
                                 'custom_signal_path': "/content/drive/MyDrive/Work/quantitative_research/data/custom_signals"}
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
-                                                                                tmpdf=None, 
+                                                                                tmpdf=self.tmpdf, 
                                                                                 return_df=False)
                 self.save_check_point()         
         
