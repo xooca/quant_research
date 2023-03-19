@@ -24,7 +24,7 @@ def diff_cols(first,second, offset_first=None, offset_second=None,**kwargs):
     offset_second = get_offset(offset_second)
     
     _name = "ROLLDIFF"
-    _props = f"_{offset_first}_{offset_first}_{kwargs.get('shift_val')}_{kwargs.get('resample')}".replace("-", '_minus_')
+    _props = f"_{offset_first}_{offset_first}".replace("-", '_minus_')
     
     if offset_first != 0:
         first = first.shift(offset_first)

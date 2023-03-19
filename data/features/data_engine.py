@@ -2010,16 +2010,19 @@ class feature_mart(DefineConfig):
                                                      'lookahead':False}
                 tmpdf_copy = self.remove_ohlc_cols(tmpdf_copy)
                 max_date,min_date = self.get_min_max_date(tmpdf_copy)
-                self.create_column_and_save_to_table(time_stamp_col='timestamp', data=tmpdf_copy)
+                final_cols = [col for col in tmpdf_copy.columns.tolist() if col not in tmpdf_cols_val]
+                final_cols.append('timestamp')
+                self.create_column_and_save_to_table(time_stamp_col='timestamp', data=tmpdf_copy[final_cols])
                 columns_to_add = tmpdf_copy.columns.tolist()
                 columns_to_add = [col for col in columns_to_add if col not in ['timestamp'] + list(self.initial_columns)]
                 for col in tmpdf_copy.columns.tolist():
-                    self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list_one',
-                                           feature_name=col,
-                                           max_date=max_date,
-                                           min_date=min_date,
-                                           status='saved',
-                                           feature_args=func_dict_args)
+                    if col not in tmpdf_cols_val:
+                        self.save_feature_info(function_name='create_technical_indicator_using_pandasta_list_one',
+                                            feature_name=col,
+                                            max_date=max_date,
+                                            min_date=min_date,
+                                            status='saved',
+                                            feature_args=func_dict_args)
                 if return_df:
                     df_list.append(tmpdf_copy)
                 del tmpdf_copy
@@ -3668,6 +3671,7 @@ class feature_mart(DefineConfig):
         print_log(f"Reject columns are :")
         print_log(reject_features)
         features = [col for col in features if col in all_columns]
+        features = [col for col in features if col not in self.ohlc_column + ['timestamp']]
         sql = f"select "
         sum_list = []
         for col in features:

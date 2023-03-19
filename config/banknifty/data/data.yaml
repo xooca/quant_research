@@ -315,34 +315,34 @@ technical_indicator_pipeline_definations:
       - {"kind": "previousday_range", "close": "close", "offset": None,"freq": 'w' ,"shift_val": 1,"resample": '1min',"suffix": "close"}
 
     pipe19:
-      - {"kind": "diff_cols", "first": "EMA_30_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "30_15"}
+      - {"kind": "diff_cols", "first": "EMA_30_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema1"}
 
-      - {"kind": "diff_cols", "first": "EMA_45_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "45_15"}
+      - {"kind": "diff_cols", "first": "EMA_45_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema2"}
 
-      - {"kind": "diff_cols", "first": "EMA_60_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "60_15"}
+      - {"kind": "diff_cols", "first": "EMA_60_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema3"}
 
-      - {"kind": "diff_cols", "first": "EMA_120_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_15"}
+      - {"kind": "diff_cols", "first": "EMA_120_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema4"}
 
-      - {"kind": "diff_cols", "first": "EMA_120_ema_close", "second": "EMA_60_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_60"}
+      - {"kind": "diff_cols", "first": "EMA_120_ema_close", "second": "EMA_60_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema5"}
 
-      - {"kind": "diff_cols", "first": "EMA_240_ema_close", "second": "EMA_60_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_60"}
+      - {"kind": "diff_cols", "first": "EMA_240_ema_close", "second": "EMA_60_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema6"}
 
-      - {"kind": "diff_cols", "first": "EMA_240_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_15"}
+      - {"kind": "diff_cols", "first": "EMA_240_ema_close", "second": "EMA_15_ema_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema7"}
 
 
-      - {"kind": "diff_cols", "first": "EMA_30_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "30_15_20_10"}
+      - {"kind": "diff_cols", "first": "EMA_30_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema8"}
 
-      - {"kind": "diff_cols", "first": "EMA_45_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "45_15_20_10"}
+      - {"kind": "diff_cols", "first": "EMA_45_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema9"}
 
-      - {"kind": "diff_cols", "first": "EMA_60_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "60_15_20_10"}
+      - {"kind": "diff_cols", "first": "EMA_60_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema10"}
 
-      - {"kind": "diff_cols", "first": "EMA_120_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_15_20_10"}
+      - {"kind": "diff_cols", "first": "EMA_120_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema11"}
 
-      - {"kind": "diff_cols", "first": "EMA_120_ema_close20", "second": "EMA_60_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_60_20_10"}
+      - {"kind": "diff_cols", "first": "EMA_120_ema_close20", "second": "EMA_60_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema12"}
 
-      - {"kind": "diff_cols", "first": "EMA_240_ema_close20", "second": "EMA_60_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_60_20_10"}
+      - {"kind": "diff_cols", "first": "EMA_240_ema_close20", "second": "EMA_60_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema13"}
 
-      - {"kind": "diff_cols", "first": "EMA_240_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_15_20_10"}
+      - {"kind": "diff_cols", "first": "EMA_240_ema_close20", "second": "EMA_15_ema_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "ema14"}
 
 
       - {"kind": "diff_cols", "first": "EMA_15_ema_close20", "second": "BBL_15_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bbema1"}
@@ -365,34 +365,34 @@ technical_indicator_pipeline_definations:
       - {"kind": "diff_cols", "first": "BBU_120_20_close", "second": "BBL_15_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb14"}
       - {"kind": "diff_cols", "first": "BBU_240_20_close", "second": "BBL_15_20_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb15"}
 
-      - {"kind": "diff_cols", "first": "RSI_30_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "30_15"}
+      - {"kind": "diff_cols", "first": "RSI_30_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi1"}
 
-      - {"kind": "diff_cols", "first": "RSI_45_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "45_15"}
+      - {"kind": "diff_cols", "first": "RSI_45_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi2"}
 
-      - {"kind": "diff_cols", "first": "RSI_60_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "60_15"}
+      - {"kind": "diff_cols", "first": "RSI_60_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi3"}
 
-      - {"kind": "diff_cols", "first": "RSI_120_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_15"}
+      - {"kind": "diff_cols", "first": "RSI_120_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi4"}
 
-      - {"kind": "diff_cols", "first": "RSI_120_rsi_close", "second": "RSI_60_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_60"}
+      - {"kind": "diff_cols", "first": "RSI_120_rsi_close", "second": "RSI_60_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi5"}
 
-      - {"kind": "diff_cols", "first": "RSI_240_rsi_close", "second": "RSI_60_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_60"}
+      - {"kind": "diff_cols", "first": "RSI_240_rsi_close", "second": "RSI_60_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi6"}
 
-      - {"kind": "diff_cols", "first": "RSI_240_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_15"}
+      - {"kind": "diff_cols", "first": "RSI_240_rsi_close", "second": "RSI_15_rsi_close", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi7"}
 
     pipe20:
-      - {"kind": "diff_cols", "first": "RSI_30_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "30_15_20_10"}
+      - {"kind": "diff_cols", "first": "RSI_30_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi8"}
 
-      - {"kind": "diff_cols", "first": "RSI_45_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "45_15_20_10"}
+      - {"kind": "diff_cols", "first": "RSI_45_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi9"}
 
-      - {"kind": "diff_cols", "first": "RSI_60_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "60_15_20_10"}
+      - {"kind": "diff_cols", "first": "RSI_60_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi10"}
 
-      - {"kind": "diff_cols", "first": "RSI_120_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_15_20_10"}
+      - {"kind": "diff_cols", "first": "RSI_120_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi11"}
 
-      - {"kind": "diff_cols", "first": "RSI_120_rsi_close20", "second": "RSI_60_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "120_60_20_10"}
+      - {"kind": "diff_cols", "first": "RSI_120_rsi_close20", "second": "RSI_60_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi12"}
 
-      - {"kind": "diff_cols", "first": "RSI_240_rsi_close20", "second": "RSI_60_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_60_20_10"}
+      - {"kind": "diff_cols", "first": "RSI_240_rsi_close20", "second": "RSI_60_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi13"}
 
-      - {"kind": "diff_cols", "first": "RSI_240_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "240_15_20_10"}
+      - {"kind": "diff_cols", "first": "RSI_240_rsi_close20", "second": "RSI_15_rsi_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "rsi14"}
 
 
       - {"kind": "diff_cols", "first": "RSI_15_rsi_close", "second": "RSI_15_rsi_close", "offset_first": 15,"offset_second": 1 ,"shift_val": 1,"resample": '1min',"suffix": "rsi_diff1"}
@@ -528,7 +528,7 @@ technical_indicator_pipeline_definations:
       - {"kind": "diff_cols", "first": "BBL_30_20_close20", "second": "BBL_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb17"}
       - {"kind": "diff_cols", "first": "BBL_60_20_close20", "second": "BBL_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb18"}
       - {"kind": "diff_cols", "first": "BBL_120_20_close20", "second": "BBL_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb19"}
-      - {"kind": "diff_cols", "first": "BB_240_20_close20", "second": "BBL_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb10"}
+      - {"kind": "diff_cols", "first": "BBL_240_20_close20", "second": "BBL_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb10"}
 
 
       - {"kind": "diff_cols", "first": "BBM_30_20_close20", "second": "BBL_15_20_close10", "offset_first": None,"offset_second": None ,"shift_val": 1,"resample": '1min',"suffix": "bb20"}

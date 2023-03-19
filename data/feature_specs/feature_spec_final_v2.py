@@ -118,6 +118,7 @@ class pipelines:
         if self.techindicator3 == True:
             #pipes = ['pipe15','pipe16','pipe17','pipe18']
             pipes = ['pipe19','pipe20','pipe21','pipe22','pipe23']
+            #pipes = ['pipe22','pipe23']
             for pipe in pipes:
                 pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
                                             "ad","adosc", "aobv", "cmf", "efi",
