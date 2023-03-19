@@ -26,7 +26,7 @@ def pricerange_hour(first, second,length=None, offset=None, **kwargs):
     r1 = kwargs.get('hour_range')[0]
     r2 = kwargs.get('hour_range')[1]
     _name = "ROLLPDR"
-    _props = f"_{length}_{offset}_{range_type}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
+    _props = f"{length}_{offset}_{range_type}_{r1.replace(':','')}_{r2.replace(':','')}".replace("-", '_minus_')
     
     if range_type == 'price_range':
         close = first.between_time(r1, r2).groupby(pd.Grouper(freq='d')).max() - second.between_time(r1, r2).groupby(pd.Grouper(freq='d')).min()

@@ -21,7 +21,7 @@ def rollrank(close, length=None, offset=None, **kwargs):
 
     if close is None: return
     _name = "ROLLRNK"
-    _props = f"_{length}_{offset}"
+    _props = f"{length}_{offset}"
     retvalue = close.rolling(length).apply(ranking)
     
     if offset != 0:

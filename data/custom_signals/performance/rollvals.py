@@ -22,7 +22,7 @@ def rollvals(close, length_list=None, offset=None, **kwargs):
     if close is None: return
     
     _name = "ROLLVALS"
-    _props = f"_{length_str}_{offset}"
+    _props = f"{length_str}_{offset}"
     eval_stmt = ''
     for lt, oper, agg in zip(length_list,kwargs['oper'], kwargs['aggs']):
         tmpst = f"close.rolling('{lt}', min_periods=1).{agg}() {oper}"

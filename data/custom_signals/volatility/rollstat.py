@@ -20,7 +20,7 @@ def rollstat(close, length=None, offset=None, **kwargs):
     if close is None: return
     _name = "ROLLSTT"
     offset = 2 if offset is not None else offset
-    _props = f"_{length}_{offset}"
+    _props = f"{length}_{offset}"
     merge_dict = {}
     col_name = f"{_name}_{_props}_DIFF".replace('-','_minus_')
     merge_dict.update({col_name: close.rolling(length).apply(lambda x: np.array(x)[-1]-np.array(x)[0])})

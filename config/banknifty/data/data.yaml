@@ -58,6 +58,13 @@ training_data_pipeline:
 technical_indicator_pipeline:
     - pipe1
     - pipe2
+    - pipe2A
+    - pipe2B
+    - pipe2C
+    - pipe2D
+    - pipe2E
+    - pipe2F
+    - pipe2G
     - pipe3
     - pipe4
     - pipe5
@@ -124,6 +131,137 @@ technical_indicator_pipeline_definations:
       - {"kind": "rsi","close": "close","length": 60, "offset": 20,"suffix": "rsi_close20"}
       - {"kind": "rsi","close": "close","length": 120, "offset": 20,"suffix": "rsi_close20"}
       - {"kind": "rsi","close": "close","length": 240, "offset": 20,"suffix": "rsi_close20"} 
+
+    pipe2A:
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 15,"offset": None,"suffix": "adx1"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 30,"offset": None,"suffix": "adx2"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 45,"offset": None,"suffix": "adx3"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 60,"offset": None,"suffix": "adx4"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 120,"offset": None,"suffix": "adx5"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 240,"offset": None,"suffix": "adx6"}
+
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 15,"offset": 10,"suffix": "adx7"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 30,"offset": 10,"suffix": "adx8"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 45,"offset": 10,"suffix": "adx9"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 60,"offset": 10,"suffix": "adx10"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 120,"offset": 10,"suffix": "adx11"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 240,"offset": 10,"suffix": "adx12"}
+
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 15,"offset": 20,"suffix": "adx13"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 30,"offset": 20,"suffix": "adx14"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 45,"offset": 20,"suffix": "adx15"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 60,"offset": 20,"suffix": "adx16"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 120,"offset": 20,"suffix": "adx17"}
+      - {"kind": "adx","high": "high","low": "low","close": "close","length": 240,"offset": 20,"suffix": "adx18"}
+
+    pipe2B:
+      - {"kind": "cmo","close": "close","length": 15,"offset": None,"suffix": "cmo1"}
+      - {"kind": "cmo","close": "close","length": 30,"offset": None,"suffix": "cmo2"}
+      - {"kind": "cmo","close": "close","length": 45,"offset": None,"suffix": "cmo3"}
+      - {"kind": "cmo","close": "close","length": 60,"offset": None,"suffix": "cmo4"}
+      - {"kind": "cmo","close": "close","length": 120,"offset": None,"suffix": "cmo5"}
+      - {"kind": "cmo","close": "close","length": 240,"offset": None,"suffix": "cmo6"}
+
+      - {"kind": "cmo","close": "close","length": 15,"offset": 10,"suffix": "cmo7"}
+      - {"kind": "cmo","close": "close","length": 30,"offset": 10,"suffix": "cmo8"}
+      - {"kind": "cmo","close": "close","length": 45,"offset": 10,"suffix": "cmo9"}
+      - {"kind": "cmo","close": "close","length": 60,"offset": 10,"suffix": "cmo10"}
+      - {"kind": "cmo","close": "close","length": 120,"offset": 10,"suffix": "cmo11"}
+      - {"kind": "cmo","close": "close","length": 240,"offset": 10,"suffix": "cmo12"}
+
+      - {"kind": "cmo","close": "close","length": 15,"offset": 20,"suffix": "cmo13"}
+      - {"kind": "cmo","close": "close","length": 30,"offset": 20,"suffix": "cmo14"}
+      - {"kind": "cmo","close": "close","length": 45,"offset": 20,"suffix": "cmo15"}
+      - {"kind": "cmo","close": "close","length": 60,"offset": 20,"suffix": "cmo16"}
+      - {"kind": "cmo","close": "close","length": 120,"offset": 20,"suffix": "cmo17"}
+      - {"kind": "cmo","close": "close","length": 240,"offset": 20,"suffix": "cmo18"}
+
+    pipe2C:
+      - {"kind": "macd","close": "close","fast": 12,"slow": 26, "offset": None,"suffix": "macd1"}
+      - {"kind": "macd","close": "close","fast": 5,"slow": 13, "offset": None,"suffix": "macd2"}
+      - {"kind": "macd","close": "close","fast": 24,"slow": 40, "offset": None,"suffix": "macd3"}
+      - {"kind": "macd","close": "close","fast": 18,"slow": 36, "offset": None,"suffix": "macd4"}
+      - {"kind": "macd","close": "close","fast": 26,"slow": 48, "offset": None,"suffix": "macd5"}
+
+      - {"kind": "macd","close": "close","fast": 12,"slow": 26, "offset": 10,"suffix": "macd6"}
+      - {"kind": "macd","close": "close","fast": 5,"slow": 13, "offset": 10,"suffix": "macd7"}
+      - {"kind": "macd","close": "close","fast": 24,"slow": 40, "offset": 10,"suffix": "macd8"}
+      - {"kind": "macd","close": "close","fast": 18,"slow": 36, "offset": 10,"suffix": "macd9"}
+      - {"kind": "macd","close": "close","fast": 26,"slow": 48, "offset": 10,"suffix": "macd10"}
+
+      - {"kind": "macd","close": "close","fast": 12,"slow": 26, "offset": 25,"suffix": "macd11"}
+      - {"kind": "macd","close": "close","fast": 5,"slow": 13, "offset": 25,"suffix": "macd12"}
+      - {"kind": "macd","close": "close","fast": 24,"slow": 40, "offset": 25,"suffix": "macd13"}
+      - {"kind": "macd","close": "close","fast": 18,"slow": 36, "offset": 25,"suffix": "macd14"}
+      - {"kind": "macd","close": "close","fast": 26,"slow": 48, "offset": 25,"suffix": "macd15"}
+
+    pipe2D:
+      - {"kind": "aroon","high": "high","low": "low","length": 15, "offset": None,"suffix": "aroon1"}
+      - {"kind": "aroon","high": "high","low": "low","length": 30, "offset": None,"suffix": "aroon2"}
+      - {"kind": "aroon","high": "high","low": "low","length": 60, "offset": None,"suffix": "aroon3"}
+      - {"kind": "aroon","high": "high","low": "low","length": 120, "offset": None,"suffix": "aroon4"}
+      - {"kind": "aroon","high": "high","low": "low","length": 240, "offset": None,"suffix": "aroon5"}
+
+      - {"kind": "aroon","high": "high","low": "low","length": 15, "offset": 10,"suffix": "aroon6"}
+      - {"kind": "aroon","high": "high","low": "low","length": 30, "offset": 10,"suffix": "aroon7"}
+      - {"kind": "aroon","high": "high","low": "low","length": 60, "offset": 10,"suffix": "aroon8"}
+      - {"kind": "aroon","high": "high","low": "low","length": 120, "offset": 10,"suffix": "aroon9"}
+      - {"kind": "aroon","high": "high","low": "low","length": 240, "offset": 10,"suffix": "aroon10"}
+
+      - {"kind": "aroon","high": "high","low": "low","length": 15, "offset": 25,"suffix": "aroon11"}
+      - {"kind": "aroon","high": "high","low": "low","length": 30, "offset": 25,"suffix": "aroon12"}
+      - {"kind": "aroon","high": "high","low": "low","length": 60, "offset": 25,"suffix": "aroon13"}
+      - {"kind": "aroon","high": "high","low": "low","length": 120, "offset": 25,"suffix": "aroon14"}
+      - {"kind": "aroon","high": "high","low": "low","length": 240, "offset": 25,"suffix": "aroon15"}
+
+    pipe2E:
+      - {"kind": "psar","high": "high","low": "low","close": "close","offset": None,"suffix": "psar1"}
+      - {"kind": "psar","high": "high","low": "low","close": "close","offset": 15,"suffix": "psar2"}
+      - {"kind": "psar","high": "high","low": "low","close": "close","offset": 30,"suffix": "psar3"}
+      - {"kind": "psar","high": "high","low": "low","close": "close","offset": 60,"suffix": "psar4"}
+      - {"kind": "psar","high": "high","low": "low","close": "close","offset": 120,"suffix": "psar5"}
+      - {"kind": "psar","high": "high","low": "low","close": "close","offset": 240,"suffix": "psar6"}
+
+    pipe2F:
+      - {"kind": "dpo","close": "close","length": 15,"offset": None,"suffix": "dpo1"}
+      - {"kind": "dpo","close": "close","length": 30,"offset": None,"suffix": "dpo2"}
+      - {"kind": "dpo","close": "close","length": 45,"offset": None,"suffix": "dpo3"}
+      - {"kind": "dpo","close": "close","length": 60,"offset": None,"suffix": "dpo4"}
+      - {"kind": "dpo","close": "close","length": 120,"offset": None,"suffix": "dpo5"}
+      - {"kind": "dpo","close": "close","length": 240,"offset": None,"suffix": "dpo6"}
+
+      - {"kind": "dpo","close": "close","length": 15,"offset": 10,"suffix": "dpo7"}
+      - {"kind": "dpo","close": "close","length": 30,"offset": 10,"suffix": "dpo8"}
+      - {"kind": "dpo","close": "close","length": 45,"offset": 10,"suffix": "dpo9"}
+      - {"kind": "dpo","close": "close","length": 60,"offset": 10,"suffix": "dpo10"}
+      - {"kind": "dpo","close": "close","length": 120,"offset": 10,"suffix": "dpo11"}
+      - {"kind": "dpo","close": "close","length": 240,"offset": 10,"suffix": "dpo12"}
+
+      - {"kind": "dpo","close": "close","length": 15,"offset": 20,"suffix": "dpo13"}
+      - {"kind": "dpo","close": "close","length": 30,"offset": 20,"suffix": "dpo14"}
+      - {"kind": "dpo","close": "close","length": 45,"offset": 20,"suffix": "dpo15"}
+      - {"kind": "dpo","close": "close","length": 60,"offset": 20,"suffix": "dpo16"}
+      - {"kind": "dpo","close": "close","length": 120,"offset": 20,"suffix": "dpo17"}
+      - {"kind": "dpo","close": "close","length": 240,"offset": 20,"suffix": "dpo18"}
+
+    pipe2G:
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 15,"upper_length": 15,"offset": None,"suffix": "don1"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 30,"upper_length": 30,"offset": None,"suffix": "don2"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 60,"upper_length": 60,"offset": None,"suffix": "don4"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 120,"upper_length": 120,"offset": None,"suffix": "don4"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 240,"upper_length": 240,"offset": None,"suffix": "don5"}
+
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 15,"upper_length": 15,"offset": 10,"suffix": "don6"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 30,"upper_length": 30,"offset": 10,"suffix": "don7"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 60,"upper_length": 60,"offset": 10,"suffix": "don8"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 120,"upper_length": 120,"offset": 10,"suffix": "don9"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 240,"upper_length": 240,"offset": 10,"suffix": "don10"}
+
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 15,"upper_length": 15,"offset": 25,"suffix": "don11"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 30,"upper_length": 30,"offset": 25,"suffix": "don12"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 60,"upper_length": 60,"offset": 25,"suffix": "don13"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 120,"upper_length": 120,"offset": 25,"suffix": "don14"}
+      - {"kind": "donchian","high": "high","low":"low","lower_length": 240,"upper_length": 240,"offset": 25,"suffix": "don15"}
 
     pipe3:
       - {"kind": "supertrend","close": "close","length": 15, "offset": None,"suffix": "supertrend_close"}
@@ -856,6 +994,10 @@ tmpdf_cols:
       - close
       - first
       - second
+      - low
+      - high
+      - open
+      
 prediction_data_pipeline:
   predict_data_prefix: prediction
   predict_base_path: "${data.paths.base_data_loc}${data.prediction_data_pipeline.predict_data_prefix}/"

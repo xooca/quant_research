@@ -22,7 +22,7 @@ def price_breach(close, length=None, offset=None, **kwargs):
     if close is None: return
     
     _name = "ROLLBRC"
-    _props = f"_{length}_{offset}"
+    _props = f"{length}_{offset}"
     
     if kwargs["breach_type"] == 'morethan':
         close = close.rolling(length).apply(lambda x: (x[-1] > x[:-1]).sum()).fillna(0)

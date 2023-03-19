@@ -20,7 +20,7 @@ def rollbin(close, length=None, offset=None, **kwargs):
     get_current_row_bin = True if kwargs.get('get_current_row_bin') is None else kwargs.get('get_current_row_bin') 
     n_bins = 5 if kwargs.get('n_bins') is None else kwargs.get('n_bins')
     _name = "ROLLBIN"
-    _props = f"_{length}_{offset}_{get_current_row_bin}_{n_bins}".replace('-','_minus_')
+    _props = f"{length}_{offset}_{get_current_row_bin}_{n_bins}".replace('-','_minus_')
 
     if get_current_row_bin:
         def bin_roll_fxn(x):

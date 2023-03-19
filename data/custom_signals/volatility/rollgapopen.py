@@ -17,7 +17,7 @@ def rollgapopen(close, frequency=None, offset=None, **kwargs):
 
     if close is None: return
     _name = "ROLLGO"
-    _props = f"_{frequency}"
+    _props = f"{frequency}"
     frequency = 'd' if frequency is None else frequency
     merge_dict={}
     close = close.resample(frequency).bfill().groupby(pd.Grouper(freq=frequency)).apply(lambda x: x[0]).subtract(

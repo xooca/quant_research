@@ -43,7 +43,7 @@ def rolllbc_offset(close, length=None, offset=None, **kwargs):
     function_option_list = ['diff','maxdiff'] if kwargs.get('function_option') is None else kwargs.get('function_option')
     if close is None: return
     _name = "ROLLBO"
-    _props = f"_{length}_{offset}"
+    _props = f"{length}_{offset}"
     merge_dict = {}
     for function_option in function_option_list:
         if function_option == 'diff' or function_option == 'all':

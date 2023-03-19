@@ -37,8 +37,12 @@ class feature_selection(base_feature_selection):
         self.feature_selection_method = 'featurewiz'
         
     def perform_feature_selection(self,df_features,label):
-        print(df_features)
-        ret_obj = featurewiz(df_features,label)
+        #print(df_features)
+        final_col = [col for col in df_features.columns.tolist() if 'timestamp' not in col]
+        df_features = df_features[final_col]
+        for col in df_features.columns.tolist():
+            print(col)
+        ret_obj = featurewiz(df_features,label,corr_limit=0.90,verbose=2)
         selected_features = ret_obj[0]
         ret_dict = {}
         null_cols = du.checknans(df_features, threshold=100)

@@ -1976,6 +1976,7 @@ class feature_mart(DefineConfig):
             pipe_config = {}
             pipe_delta_pgm = {}
             for pipe_delta in getattr(self,pipe):
+                print_log(f"Pipeline found {pipe_delta}")
                 for k,v in pipe_delta.items():
                     if v in ['None','none','NONE']:
                         pipe_delta_pgm[k] = None
@@ -1985,17 +1986,20 @@ class feature_mart(DefineConfig):
                 pipe_config.update({'name':f'pipe_desc_{pipe}_{i}'})
                 pipe_config.update({'ta': [pipe_delta_pgm]})
                 tmpdf_cols_val=['timestamp']
+                print(f"PIPE CONFIG {pipe_config}")
+                print(f"TA Definition is {pipe_config['ta']}")
                 for col in self.tmpdf_cols:
                     if pipe_config['ta'][0].get(col) is not None:
                         tmpdf_cols_val.append(pipe_config['ta'][0].get(col))
-                
+                print(f"TEMP COLS {tmpdf_cols_val}")
                 if tmpdf is None:
                     tmpdf_copy = self.get_ohlc_df()
-                    if tmpdf is None:
+                    if tmpdf_copy is None:
                         return
                 else:
                     tmpdf_copy = tmpdf[tmpdf_cols_val]
                 i = i+1
+                print_log(f"Shape of tempdf is {tmpdf_copy.shape}")
                 print_log(f"Pipeline configuration is {pipe_config}")
                 pipe_desc = ta.Strategy(**pipe_config)
                 tmpdf_copy.ta.strategy(pipe_desc,
@@ -3391,12 +3395,14 @@ class feature_mart(DefineConfig):
         df_features = ddu.load_table_df(self.db_conection,table_name=None,column_names=None,filter=None,load_sql=sql)
         df_features = df_features.loc[:,~df_features.columns.duplicated()].copy()
 
-        dist1 = df_features['open']
+        
         list_val = []
         for col in df_features.columns.tolist():
             if df_features[col].dtype != '<M8[ns]' and df_features[col].dtype != 'object':
                 #print(col)
-                dist2 = df_features[col]
+                tmpdf = df_features[['open',col]].dropna()
+                dist1 = tmpdf['open']
+                dist2 = tmpdf[col]
                 val = self.compare_two_diff(dist1,dist2,tolerance=tolerance)
                 if val == 'same':
                     list_val.append(col)
@@ -3666,6 +3672,7 @@ class feature_mart(DefineConfig):
         tmp_sql = f"select * from {self.train_feature_table} limit 10"
         dummy_df = ddu.load_table_df(self.db_conection,table_name=None,column_names=None,filter=None,load_sql=tmp_sql)
         all_columns = set(dummy_df.columns.tolist())
+        #all_columns = list(set(all_columns))
         del dummy_df
         reject_features = [col for col in features if col not in all_columns]
         print_log(f"Reject columns are :")

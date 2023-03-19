@@ -47,7 +47,7 @@ class pipelines:
         self.column_unstable = column_unstable
         self.label_creation = label_creation
         self.update_unstable = update_unstable
-        if load_tmp is not None:
+        if load_tmp:
             all_cols = list(self.feature_mart.temp_df_cols)
             all_cols = ','.join(self.feature_mart.temp_df_cols)
             sql = f'''
@@ -84,7 +84,7 @@ class pipelines:
         
         # Creation of technical indicators using pandata
         if self.techindicator1 == True:
-            pipes = ['pipe1','pipe2','pipe3','pipe4','pipe5','pipe6','pipe7']
+            pipes = ['pipe1','pipe2','pipe2A','pipe2B','pipe2C','pipe2D','pipe2E','pipe2F','pipe2G','pipe3','pipe4','pipe5','pipe6','pipe7']
             for pipe in pipes:
                 pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
                                             "ad","adosc", "aobv", "cmf", "efi",
@@ -99,8 +99,8 @@ class pipelines:
                                                                                 return_df=False)
                 self.save_check_point()
         if self.techindicator2 == True:
-            #pipes = ['pipe8','pipe9','pipe10','pipe11','pipe12','pipe13','pipe14']
-            pipes = ['pipe14']
+            pipes = ['pipe8','pipe9','pipe10','pipe11','pipe12','pipe13','pipe14','pipe15','pipe16','pipe17','pipe18']
+            #pipes = ['pipe14']
             for pipe in pipes:
                 pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 
                                             "ad","adosc", "aobv", "cmf", "efi",
@@ -116,8 +116,8 @@ class pipelines:
                 
         
         if self.techindicator3 == True:
-            #pipes = ['pipe15','pipe16','pipe17','pipe18']
             pipes = ['pipe19','pipe20','pipe21','pipe22','pipe23']
+            #pipes = ['pipe19','pipe20','pipe21','pipe22','pipe23']
             #pipes = ['pipe22','pipe23']
             for pipe in pipes:
                 pandas_ta_args = {'exclude': ["jma", "pvo", "vwap", "vwma", 

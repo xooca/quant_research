@@ -46,7 +46,7 @@ def rolllb(close, length=None, offset=None, **kwargs):
 
     if close is None: return
     _name = "ROLLLB"
-    _props = f"_{length}_{offset}_{lookback_divider}"
+    _props = f"{length}_{offset}_{lookback_divider}"
     merge_dict = {}
         
     for function_option in function_option_list:
