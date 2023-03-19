@@ -37,6 +37,7 @@ class feature_selection(base_feature_selection):
         self.feature_selection_method = 'featurewiz'
         
     def perform_feature_selection(self,df_features,label):
+        print(df_features)
         ret_obj = featurewiz(df_features,label)
         selected_features = ret_obj[0]
         ret_dict = {}
