@@ -353,6 +353,7 @@ class execute_feature_selection_pipeline:
                  train_feature_selection_table = None,
                  train_feature_info_table=None,
                  filter_out_cols=None,
+                 ignore_cols = None,
                  verbose=True):
 
         
@@ -366,7 +367,7 @@ class execute_feature_selection_pipeline:
                                                                               train_feature_table=train_feature_table,
                                                                               train_feature_selection_table=train_feature_selection_table,
                                                                               train_feature_info_table=train_feature_info_table,
-                                                                              filter_out_cols=filter_out_cols,
+                                                                              filter_out_cols=filter_out_cols,ignore_cols=ignore_cols,
                                                                               verbose=verbose)
 
     def run_pipelines(self,forced_labels=[],split_selection_limit=1):

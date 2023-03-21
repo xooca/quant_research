@@ -29,6 +29,7 @@ class feature_selection(base_feature_selection):
                  train_feature_selection_table=None,
                  train_feature_info_table=None,
                  filter_out_cols=None,
+                 ignore_cols=None,
                  verbose=True):
         base_feature_selection.__init__(self, 
                                         master_config_path, 
@@ -39,6 +40,7 @@ class feature_selection(base_feature_selection):
                                         train_feature_selection_table = train_feature_selection_table,
                                         train_feature_info_table=train_feature_info_table,
                                         filter_out_cols=filter_out_cols,
+                                        ignore_cols = ignore_cols,
                                         verbose=verbose)
     
     def correlation(self,df_features, threshold):

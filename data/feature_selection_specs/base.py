@@ -19,6 +19,7 @@ class base_feature_selection(DefineConfig):
                  train_feature_selection_table=None,
                  train_feature_info_table=None,
                  filter_out_cols = None,
+                 ignore_cols = None,
                  verbose=True):
         DefineConfig.__init__(self, master_config_path, master_config_name)
         self.database_path = database_path
@@ -39,6 +40,7 @@ class base_feature_selection(DefineConfig):
             self.db_connection = db_connection
         else:
             self.db_connection = duckdb.connect(database=self.database_path , read_only=False)
+        self.ignore_cols = ignore_cols
         self.table_setup()
         du.print_log(f"Table setup completed")
 
@@ -105,7 +107,8 @@ class base_feature_selection(DefineConfig):
         #features = info[(info['column_type'] == 'feature') & (info['feature_name'] != 'timestamp')]['feature_name'].tolist()
         self.features = self.info[(self.info['column_type'] == 'feature')]['feature_name'].tolist()
         self.features = [col for col in self.features if col not in nulls_cols]
-
+        if self.ignore_cols is not None:
+            self.features = [col for col in self.features if col not in self.ignore_cols]
         self.features = [x.strip() for x in self.features]
         print(f"Number of features are {len(self.features)}")
         self.labels = [x.strip() for x in self.labels]
