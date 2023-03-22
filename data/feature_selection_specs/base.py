@@ -107,8 +107,10 @@ class base_feature_selection(DefineConfig):
         #features = info[(info['column_type'] == 'feature') & (info['feature_name'] != 'timestamp')]['feature_name'].tolist()
         self.features = self.info[(self.info['column_type'] == 'feature')]['feature_name'].tolist()
         self.features = [col for col in self.features if col not in nulls_cols]
+        print(f"Number of features after removing nulls cols {len(self.features)}")
         if self.ignore_cols is not None:
             self.features = [col for col in self.features if col not in self.ignore_cols]
+            print(f"Number of features after ignoring cols {len(self.features)}")
         self.features = [x.strip() for x in self.features]
         print(f"Number of features are {len(self.features)}")
         self.labels = [x.strip() for x in self.labels]

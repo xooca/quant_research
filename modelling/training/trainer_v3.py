@@ -14,6 +14,7 @@ class define_pipeline:
                  train_feature_info_table=None,
                  train_training_info_table=None,
                  train_tuning_info_table=None,
+                 ignore_column = [],
                  verbose=True):
 
         self.specification_name = specification_name
@@ -28,6 +29,7 @@ class define_pipeline:
                                                     train_feature_info_table=train_feature_info_table,
                                                     train_training_info_table=train_training_info_table,
                                                     train_tuning_info_table=train_tuning_info_table,
+                                                    ignore_column = ignore_column,
                                                     verbose=verbose)
 
     def run_training_pipelines(self,

@@ -41,6 +41,7 @@ class model(ct.model):
                  train_feature_info_table = None,
                  train_training_info_table = None,
                  train_tuning_info_table=None,
+                 ignore_column =[],
                  verbose=True):
         base_model_tuning.__init__(self, 
                                 master_config_path=master_config_path, 
@@ -52,6 +53,7 @@ class model(ct.model):
                                 train_feature_info_table = train_feature_info_table,
                                 train_training_info_table = train_training_info_table,
                                 train_tuning_info_table=train_tuning_info_table,
+                                ignore_column = ignore_column,
                                 verbose=verbose)
     
     

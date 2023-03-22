@@ -49,6 +49,7 @@ class base_model_helper(DefineConfig):
                  train_feature_info_table=None,
                  train_training_info_table=None,
                  train_tuning_info_table=None,
+                 ignore_column = [],
                  verbose=True):
         DefineConfig.__init__(self, master_config_path, master_config_name)
         self.database_path = database_path
@@ -73,6 +74,7 @@ class base_model_helper(DefineConfig):
             self.db_connection = db_connection
         else:
             self.db_connection = duckdb.connect(database=self.database_path , read_only=False)
+        self.ignore_column = ignore_column
                 
     def update_insert(self,sql_dict,table_name,update_where_expr):
         sql_dict_updated = {i:j for i,j in sql_dict.items() if j is not None}
@@ -151,6 +153,7 @@ class base_model_helper(DefineConfig):
         info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         unstable_columns = info[info['column_type']=='unstable_column']['feature_name'].tolist()
         feature_columns = info[info['column_type']=='feature']['feature_name'].tolist()
+        feature_columns = [col for col in feature_columns if col not in self.ignore_column]
         return info,unstable_columns,feature_columns
 
     def get_feature_selection_info_df(self,feature_selection_method):
