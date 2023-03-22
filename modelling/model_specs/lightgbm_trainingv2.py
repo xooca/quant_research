@@ -25,6 +25,7 @@ class model(base_model):
                  train_feature_info_table=None,
                  train_training_info_table=None,
                  train_tuning_info_table=None,
+                 ignore_column=None,
                  verbose=True):
         base_model.__init__(self, 
                                 master_config_path=master_config_path, 
@@ -36,8 +37,10 @@ class model(base_model):
                                 train_feature_info_table=train_feature_info_table,
                                 train_training_info_table=train_training_info_table,
                                 train_tuning_info_table=train_tuning_info_table,
+                                ignore_column=ignore_column,
                                 verbose=verbose)
         
+    
     
     def create_fit_params(self):
         def evaluate_macroF1_lgb(truth, predictions):  
@@ -75,21 +78,21 @@ class model(base_model):
     def model_spec_info(self):
         self.algo_name = 'lightgbm'
         self.tuning_type = 'optuna'
-        self.convert_to_cat = False
-        self.add_cat_col_to_model = False
+        self.convert_to_cat = True
+        self.add_cat_col_to_model = True
         self.if_return_df = True
         self.train_data_scamble=True
         self.train_sampling_fraction=1
         self.validation_data_scamble=True
         self.validation_sampling_fraction=1
-        
+        self.reduce_data_size = False
         self.scramble_all=True
         self.comb_diff=3
         self.select_value=4
         self.stride=2
         self.strategy='chunking'
-        self.feature_strategy = 'all-include-unstable-feature' # 'all-notinclude-unstable-feature','all-include-unstable-feature','selection'
-        self.standardize_strategy = 'all' # 'all','only-unstable'
+        self.feature_strategy = 'selection' # 'all-notinclude-unstable-feature','all-include-unstable-feature','selection'
+        self.standardize_strategy = None # 'all','only-unstable'
               
     def create_model(self):
         model = None

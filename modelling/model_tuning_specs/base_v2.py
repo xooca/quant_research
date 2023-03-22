@@ -116,9 +116,9 @@ class base_model_tuning(base_model_helper):
         best_model,best_param = self.define_and_run_study()
         
         #best_param = {i:str(j) for i,j in best_param.items()}
-        modelbestparam_file_name = f"{self.train_model_base_path}bestmodelparam_{self.selected_label_name}.pkl"
+        modelbestparam_file_name = f"{self.train_model_base_path}bestmodelparam_{self.label_name}.pkl"
 
-        return_dict = {"label_name":self.selected_label_name,"feature_selection_method":self.feature_selection_method,
+        return_dict = {"label_name":self.label_name,"feature_selection_method":self.feature_selection_method,
                        "feature_names":"None","algo_name":self.algo_name,"tuning_type":self.tuning_type,
                        "best_tuned_parameters":best_param,"parameter_tune_info":"None"}
         self.upsert_tuning_info_table(return_dict)
@@ -126,7 +126,7 @@ class base_model_tuning(base_model_helper):
         self.save_pickle_obj(modelbestparam_file_name,best_param)
 
         gc.enable()  
-        del self.selected_folds,self.selected_feature_names,self.selected_label_name,self.selected_label_mapper
+        del self.selected_folds
         gc.collect()
     
     def define_and_run_study(self):

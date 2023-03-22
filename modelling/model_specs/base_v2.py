@@ -34,6 +34,7 @@ class base_model(base_model_helper):
                  train_feature_info_table=None,
                  train_training_info_table=None,
                  train_tuning_info_table=None,
+                 ignore_column=None,
                  verbose=True):
         base_model_helper.__init__(self, master_config_path=master_config_path, 
                                         master_config_name=master_config_name,
@@ -44,6 +45,7 @@ class base_model(base_model_helper):
                                         train_feature_info_table=train_feature_info_table,
                                         train_training_info_table=train_training_info_table,
                                         train_tuning_info_table=train_tuning_info_table,
+                                        ignore_column=ignore_column,
                                         verbose=verbose)
         self.table_setup()
 
@@ -107,7 +109,8 @@ class base_model(base_model_helper):
                 first_iteration = False
                 print(f"Setting first_iteration to {first_iteration}")
             model.fit(**self.model_fit_params)
-            metrics_dict_list = self.model_evaluation(model,
+            
+            metrics_dict_list,label_df = self.model_evaluation(model,
                                             test_data=self.test_data,
                                             actual_labels=self.test_data_label,
                                             label_name=self.label_name,
@@ -140,14 +143,14 @@ class base_model(base_model_helper):
 
             #tst = test_combination.split("_")[-1]
             #vc = validation_combination.split("_")[-1]
-            metric_file_name = f"{self.train_model_base_path}metric_{self.label_name}_{tc}_{vc}_{tst}.pkl"
+            metric_file_name = f"{self.train_model_base_path}metric_{self.algo_name}_{self.label_name}_{tc}_{vc}_{tst}.pkl"
 
             final_info.update({'feature_names':feature_str})
             final_info.update({'model_params':metrics_dict_list})
             final_info.update({'metrics_dict_list':metric_file_name})
 
             
-            model_file_name = f"{self.train_model_base_path}model_{self.label_name}_{tc}_{vc}_{tst}.pkl"
+            model_file_name = f"{self.train_model_base_path}model_{self.algo_name}_{self.label_name}_{tc}_{vc}_{tst}.pkl"
             final_info.update({'model_file_name':model_file_name})
             final_info.update({'label_mapper':self.label_mapper})
 
@@ -168,11 +171,13 @@ class base_model(base_model_helper):
             print(f" MODEL SAVE AT LOCATION : {model_file_name}")
             self.save_pickle_obj(model_file_name,model)
             self.save_pickle_obj(metric_file_name,metrics_dict_list)
+            label_df_name = f"{self.train_model_base_path}label_df_name_{self.algo_name}_{self.label_name}_{tc}_{vc}_{tst}.csv"
+            label_df.to_csv(label_df_name)
             i = i+1
 
         feature_importance_values = feature_importance_values/i
         feature_importances = pd.DataFrame({'feature': self.feature_names, 'importance': feature_importance_values})
-        fi_file_name = f"{self.train_model_base_path}feature_imp_{self.label_name}.csv"
+        fi_file_name = f"{self.train_model_base_path}{self.algo_name}_feature_imp_{self.label_name}.csv"
         print(feature_importances)
         feature_importances.to_csv(fi_file_name)
         return model

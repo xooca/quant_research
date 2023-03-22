@@ -91,7 +91,7 @@ class model(base_model_tuning):
         
         self.model_fit_params.update({'eval_set':[(self.validation_data, self.validation_data_label), 
                                                   (self.train_data, self.train_data_label)]})
-        self.model_fit_params.update({'eval_names':['valid','train']})
+        #self.model_fit_params.update({'eval_names':['valid','train']})
         if self.add_cat_col_to_model:
             self.model_fit_params.update({'categorical_feature':self.cat_cols})
         self.model_fit_params.update({'eval_metric':evaluate_macroF1_lgb})
@@ -100,6 +100,7 @@ class model(base_model_tuning):
     
     def define_and_train_model(self,trial,param):
         model = lgb.LGBMClassifier(**param)
+        self.create_fit_params()
         self.model_fit_params.update({'callbacks':[LightGBMPruningCallback(trial, "macroF1")]})
         model.fit(**self.model_fit_params)
         return model
@@ -143,9 +144,9 @@ class model(base_model_tuning):
               
     def define_and_run_study(self):
         study = optuna.create_study(direction='maximize', study_name="lightgbmtune",)
-        study.optimize(self.objective_function, n_trials=35) 
-        print(study.best_trial)
-        print( study.best_trial.user_attrs)
+        study.optimize(self.objective_function, n_trials=2) 
+        #print(study.best_trial)
+        #print( study.best_trial.user_attrs)
         #best_model = study.best_trial.user_attrs['model']
         best_model=None
         return best_model,dict(study.best_trial.params)

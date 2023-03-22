@@ -75,6 +75,7 @@ class base_model_helper(DefineConfig):
         else:
             self.db_connection = duckdb.connect(database=self.database_path , read_only=False)
         self.ignore_column = ignore_column
+        print(f"Ignore columns are {self.ignore_column}")
                 
     def update_insert(self,sql_dict,table_name,update_where_expr):
         sql_dict_updated = {i:j for i,j in sql_dict.items() if j is not None}
@@ -136,6 +137,7 @@ class base_model_helper(DefineConfig):
         self.feature_selection_method = feature_selection_method
         self.get_feature_selection_info(feature_selection_method=self.feature_selection_method)
 
+        print("Below is the feature_selection_dict")
         print(self.feature_selection_dict)
         
         if len(only_run_for_label)>0:
@@ -153,6 +155,7 @@ class base_model_helper(DefineConfig):
         info = ddu.load_table_df(self.db_connection,table_name=None,column_names=None,filter=None,load_sql=sql)
         unstable_columns = info[info['column_type']=='unstable_column']['feature_name'].tolist()
         feature_columns = info[info['column_type']=='feature']['feature_name'].tolist()
+        
         feature_columns = [col for col in feature_columns if col not in self.ignore_column]
         return info,unstable_columns,feature_columns
 
@@ -202,11 +205,16 @@ class base_model_helper(DefineConfig):
     def get_feature_selection_info(self,feature_selection_method='featurewiz'):
         self.info, self.info_features, features, self.unstable_columns = self.get_features_strategy(feature_strategy=self.feature_strategy,feature_selection_method=feature_selection_method)
         self.labels = list(set(self.info['label_name'].tolist()))
+        #print(f"Number of features column in get_features_strategy {len(features)}")
         self.feature_selection_dict ={}
         for label in self.labels:
             if features is None:
                 features = self.info[self.info['label_name']==label]['feature_name'].tolist()
             features = [x.strip() for x in features]
+            print(f" ........ {label} .........")
+            print(f"Number of features column before ignore col {len(features)} for label {label}")
+            features = [col for col in features if col not in self.ignore_column]
+            print(f"Number of features column after ignore col {len(features)} for label {label}")
             mapper = self.info[self.info['label_name']==label]['label_mapper'].tolist()
             mapper = mapper[0]
             print(f"Number of features column are {len(features)} for label {label}")
@@ -611,6 +619,7 @@ class base_model_helper(DefineConfig):
                          prob_theshold_list=[0.8,0.9]):
         #print("MODEL is",model)
         #print("MODEL PATH is",model_path)
+        df = pd.DataFrame()
         preds_proba = self.model_prediction(model = model,test_data = test_data,predict_mode='proba',model_path=model_path)        
         preds_predict = self.model_prediction(model = model,test_data = test_data,predict_mode='predict',model_path=model_path)
         if actual_labels is None:
@@ -641,27 +650,36 @@ class base_model_helper(DefineConfig):
         print(f"\t preds_proba shape {preds_proba.shape}")
         print(f"\t preds_proba_max shape {preds_proba_max.shape}")
         
-
+        df['actual_labels'] = actual_labels
+        df['preds_predict'] = preds_predict
+        df['preds_proba'] = preds_proba
+        df['actual_labels'] = actual_labels
         metrics_dict_list = []
         for prob_theshold in prob_theshold_list:
-            th_preds_predict=[]
-            th_actual_labels = []
-            th_preds_proba = []
-            for x,y,z,i in zip(actual_labels,preds_predict,preds_proba,preds_proba_max):
-                if i >= prob_theshold:
-                    th_actual_labels.append(x)
-                    th_preds_predict.append(y)
-                    th_preds_proba.append(z)
-            print(f"*************Test validation using threshold {prob_theshold}*****************")
-            metrics_dict2 = self.get_metrics(th_actual_labels,th_preds_predict,th_preds_proba)
-            metrics_dict2.update({"threshold_probability":prob_theshold})
-            metrics_dict_list.append(metrics_dict2)
+            try:
+                th_preds_predict=[]
+                th_actual_labels = []
+                th_preds_proba = []
+                for x,y,z,i in zip(actual_labels,preds_predict,preds_proba,preds_proba_max):
+                    if i >= prob_theshold:
+                        th_actual_labels.append(x)
+                        th_preds_predict.append(y)
+                        th_preds_proba.append(z)
+                print(f"*************Test validation using threshold {prob_theshold}*****************")
+                metrics_dict2 = self.get_metrics(th_actual_labels,th_preds_predict,th_preds_proba)
+                metrics_dict2.update({"threshold_probability":prob_theshold})
+                metrics_dict_list.append(metrics_dict2)
+            except Exception as e:
+                print(f"Error while calculating for {prob_theshold}.skipped")
         print("*****************Test validation using defaults*****************")
-        metrics_dict1 = self.get_metrics(actual_labels,preds_predict,preds_proba)
-        metrics_dict1.update({"threshold_probability":'default'})
-        metrics_dict_list.append(metrics_dict1)
+        try:
+            metrics_dict1 = self.get_metrics(actual_labels,preds_predict,preds_proba)
+            metrics_dict1.update({"threshold_probability":'default'})
+            metrics_dict_list.append(metrics_dict1)
+        except Exception as e:
+            print(f"Error while calculating for defaults.skipped")        
         #print(f"*************Test validation using threshold {prob_theshold}*****************")
         #metrics_dict2 = get_metrics(th_actual_labels,th_preds_predict,th_preds_proba)
 
-        return metrics_dict_list
+        return metrics_dict_list,df
 
