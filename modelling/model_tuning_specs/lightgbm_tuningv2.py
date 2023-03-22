@@ -34,7 +34,10 @@ class model(base_model_tuning):
                  database_path=None, 
                  train_feature_table = None,
                  train_feature_selection_table=None,
+                 train_feature_info_table = None,
+                 train_training_info_table = None,
                  train_tuning_info_table=None,
+                 ignore_column =[],
                  verbose=True):
         base_model_tuning.__init__(self, 
                                 master_config_path=master_config_path, 
@@ -43,7 +46,10 @@ class model(base_model_tuning):
                                 database_path=database_path, 
                                 train_feature_table = train_feature_table,
                                 train_feature_selection_table=train_feature_selection_table,
+                                train_feature_info_table = train_feature_info_table,
+                                train_training_info_table = train_training_info_table,
                                 train_tuning_info_table=train_tuning_info_table,
+                                ignore_column =ignore_column,
                                 verbose=verbose)
     
     
@@ -123,15 +129,18 @@ class model(base_model_tuning):
         self.validation_data_scamble=True
         self.validation_sampling_fraction=1
         
+        self.reduce_data_size = False
         self.scramble_all=True
         self.comb_diff=3
         self.select_value=4
         self.stride=3
         self.strategy='chunking'
+        self.standardize_strategy = None # 'all','only-unstable',None
         
         self.feature_strategy = 'selection' # 'all-notinclude-unstable-feature','all-include-unstable-feature','selection'
-        self.standardize_columns = None # 'all','only-unstable', None
-        
+        #self.standardize_columns = None # 'all','only-unstable', None
+        self.study_name = "lightgbm_tune"
+              
     def define_and_run_study(self):
         study = optuna.create_study(direction='maximize', study_name="lightgbmtune",)
         study.optimize(self.objective_function, n_trials=35) 

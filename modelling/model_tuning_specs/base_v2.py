@@ -24,6 +24,7 @@ class base_model_tuning(base_model_helper):
                  train_feature_info_table=None,
                  train_training_info_table=None,
                  train_tuning_info_table=None,
+                 ignore_column = [],
                  verbose=True):
         base_model_helper.__init__(self, master_config_path=master_config_path, 
                                         master_config_name=master_config_name,
