@@ -1,6 +1,6 @@
 paths:
   ticker_name: 'banknifty'
-  data_create_date: '2022-10-07'
+  data_create_date: '2022-10-08'
   #zip_files: "/Volumes/Seagate/trading_data/zip_files/"
   data_files: "/Volumes/Seagate/trade/"
   
@@ -22,7 +22,7 @@ initial_data_setup:
   ohlc_raw_data_table: "${data.paths.ticker_name}.ohlc_raw_data"
 
 training_data_pipeline:
-  train_model_prefix: '2023-03-15'
+  train_model_prefix: '2023-03-16'
   train_base_path: "/content/drive/MyDrive/Work/trading_updated/"
   train_model_base_path: "${data.training_data_pipeline.train_base_path}/model/${data.paths.ticker_name}/${data.training_data_pipeline.train_model_prefix}/"
   train_feature_table: "${data.paths.ticker_name}.train_feature"

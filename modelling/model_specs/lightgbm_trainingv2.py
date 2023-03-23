@@ -78,8 +78,8 @@ class model(base_model):
     def model_spec_info(self):
         self.algo_name = 'lightgbm'
         self.tuning_type = 'optuna'
-        self.convert_to_cat = True
-        self.add_cat_col_to_model = True
+        self.convert_to_cat = False
+        self.add_cat_col_to_model = False
         self.if_return_df = True
         self.train_data_scamble=True
         self.train_sampling_fraction=1

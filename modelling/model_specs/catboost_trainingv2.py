@@ -87,7 +87,7 @@ class model(base_model):
         self.add_cat_col_to_model = True
         self.if_return_df = True
         self.train_data_scamble=True
-        self.train_sampling_fraction=1
+        self.train_sampling_fraction=0.3
         self.validation_data_scamble=True
         self.validation_sampling_fraction=1
         self.reduce_data_size = False

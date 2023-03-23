@@ -444,7 +444,7 @@ class base_model_helper(DefineConfig):
                                                                                   self.label_name,
                                                                                   self.label_mapper, 
                                                                                   data_scamble=validation_data_scamble,
-                                                                                  sampling_fraction=validation_sampling_fraction)
+                                                                                  sampling_fraction=train_sampling_fraction)
 
         #sql = f"select {','.join(self.feature_names)},{self.label_name} from {self.train_feature_table} where time_split = '{test_filter}'  and {self.label_name} != 'unknown'"
         sql = self.create_sql_for_data_creation(test_filter)
@@ -649,11 +649,13 @@ class base_model_helper(DefineConfig):
         print(f"\t Actual labels shape {actual_labels.shape}")
         print(f"\t preds_proba shape {preds_proba.shape}")
         print(f"\t preds_proba_max shape {preds_proba_max.shape}")
-        
+        proba_df = pd.DataFrame(preds_proba)
         df['actual_labels'] = actual_labels
         df['preds_predict'] = preds_predict
-        df['preds_proba'] = preds_proba
+        #df['preds_proba'] = preds_proba
         df['actual_labels'] = actual_labels
+        for col in proba_df.columns.tolist():
+            df[f'label_{col}'] = proba_df[col]
         metrics_dict_list = []
         for prob_theshold in prob_theshold_list:
             try:
