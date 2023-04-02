@@ -89,7 +89,7 @@ class pipelines:
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
                                 'technical_indicator_pipeline' : [pipe],
-                                'custom_signal_path': "/content/drive/Othercomputers/My Mac/Documents/trading/qml/data/custom_signals"
+                                'custom_signal_path': "/Users/prabhatkumar/Documents/trading/qml/data/custom_signals"
 
                                 }
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
@@ -105,7 +105,7 @@ class pipelines:
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
                                 'technical_indicator_pipeline' : [pipe],
-                                'custom_signal_path': "/content/drive/Othercomputers/My Mac/Documents/trading/qml/data/custom_signals"
+                                'custom_signal_path': '/Users/prabhatkumar/Documents/trading/qml/data/custom_signals'
                                 }
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=None, 
@@ -123,7 +123,7 @@ class pipelines:
                                             "eom", "kvo", "mfi", "nvi", "obv",
                                             "pvi", "pvol", "pvr", "pvt"],
                                 'technical_indicator_pipeline' : [pipe],
-                                'custom_signal_path': "/content/drive/Othercomputers/My Mac/Documents/trading/qml/data/custom_signals"}
+                                'custom_signal_path': '/Users/prabhatkumar/Documents/trading/qml/data/custom_signals'}
                 self.feature_mart.create_technical_indicator_using_pandasta_list_one(pandas_ta_args, 
                                                                                 tmpdf=self.tmpdf, 
                                                                                 return_df=False)

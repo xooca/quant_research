@@ -1955,6 +1955,7 @@ class feature_mart(DefineConfig):
 
     def create_technical_indicator_using_pandasta_list_one(self, func_dict_args, tmpdf=None, return_df=False):
         # create_technical_indicator_using_pandasta_args= {'exclude':["jma","pvo","vwap","vwma","ad","adosc","aobv","cmf","efi","eom","kvo","mfi","nvi","obv","pvi","pvol","pvr","pvt"]}
+        import pandas as pd
         import pandas_ta as ta
         from pandas_ta.custom import import_dir
         import_dir(func_dict_args.get('custom_signal_path'))
@@ -2001,12 +2002,16 @@ class feature_mart(DefineConfig):
                 i = i+1
                 print_log(f"Shape of tempdf is {tmpdf_copy.shape}")
                 print_log(f"Pipeline configuration is {pipe_config}")
+                print_log(tmpdf_copy.ta.indicators())
+                #print("-----------------------------")
+                #print_log(tmpdf.ta.indicators())
                 pipe_desc = ta.Strategy(**pipe_config)
                 tmpdf_copy.ta.strategy(pipe_desc,
-                                exclude=func_dict_args['exclude'],
+                                exclude=func_dict_args.get('exclude'),
                                 verbose=self.verbose, 
                                 timed=True,
                                 lookahead=False)
+                tmpdf_copy.columns = [col.replace(".","") for col in tmpdf_copy.columns.tolist()]
                 pipe_config.update({'ta': [pipe_delta]})
                 func_dict_args['pipe_config'] = pipe_config
                 func_dict_args['strategy_config'] = {'exclude':func_dict_args['exclude'],
@@ -2016,6 +2021,7 @@ class feature_mart(DefineConfig):
                 max_date,min_date = self.get_min_max_date(tmpdf_copy)
                 final_cols = [col for col in tmpdf_copy.columns.tolist() if col not in tmpdf_cols_val]
                 final_cols.append('timestamp')
+                
                 self.create_column_and_save_to_table(time_stamp_col='timestamp', data=tmpdf_copy[final_cols])
                 columns_to_add = tmpdf_copy.columns.tolist()
                 columns_to_add = [col for col in columns_to_add if col not in ['timestamp'] + list(self.initial_columns)]

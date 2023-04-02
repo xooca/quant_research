@@ -1004,12 +1004,12 @@ tmpdf_cols:
       - high
       - open
 
-prediction_data_pipeline:
-  predict_data_prefix: prediction
-  predict_base_path: "${data.paths.base_data_loc}${data.prediction_data_pipeline.predict_data_prefix}/"
-  predict_initial_file_path: "${data.prediction_data_pipeline.predict_base_path}/${data.paths.ticker_name}_initial.csv"
-  predict_final_data_path: "${data.prediction_data_pipeline.predict_base_path}/${data.paths.ticker_name}_final.csv"
-  predict_save_data: 0
+#prediction_data_pipeline:
+#  predict_data_prefix: prediction
+#  #predict_base_path: "${data.paths.base_data_loc}${data.prediction_data_pipeline.predict_data_prefix}/"
+#  predict_initial_file_path: "${data.prediction_data_pipeline.predict_base_path}/${data.paths.ticker_name}_initial.csv"
+#  predict_final_data_path: "${data.prediction_data_pipeline.predict_base_path}/${data.paths.ticker_name}_final.csv"
+#  predict_save_data: 0
 
 
 tech_ind:
