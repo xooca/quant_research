@@ -1,0 +1,27 @@
+1) The template paragraph should be completely for completly random paragraph each containing 3 to 6 sentences. 
+2) The random paragraph must contain any person's 10 to 20 below mentioned entities. I have also given its example. Please make sure that 10 paragraph should cover all of them. 
+	- name. Example - Prabhat Kumar etc
+	- age. Example - 45, 65 year old etc
+	- phone number. Example - +1 415 87888123 etc
+	- us social security number. Example - 981-90-0001 etc
+	- credit card number. Example - 9891 8821 9182 9918 etc
+	- US bank account number. Example - 09189817283 etc
+	- Credit card cvv number. Example - 981 etc
+	- green card number. Example - LIN0981091281 etc
+	- date of birth. Example - 12th August 2017, 12-03-1985, 12 August 2012, May 13th 2013 etc
+	- nationality. Example - Indian, Canadian etc
+	- orientation. Example - Straight etc
+	- gender. Example - Male, Female etc
+	- address. Example - B381, Building 780, Little Russel Street, New York, USA etc
+	- marital status. Example: Married, Single etc
+	- email ids. Example - 888saksah@gmail.com ect
+	- religion. Example - Hinduism, Christanity etc
+	- ideology. Example - Liberal ect
+	- political party affiliation. Example : Democratic Party etc
+	- community. Example : African American etc
+
+
+3) Remember each template paragraph shold be complately different from each other and should be like email or tweet or news article or introduction or wikipedia page or speech or movie dialogue or conversation or fiction or news clip or poem or biography or autobiography. Please dont include things like Tweet: or Article: in the start of the paragraph.
+4) Paragraph should created in such a way that it should contain actual data.
+5) Lastly, please create references i.e. replace data that are name as {{name}},age as {{age}},phone number as {{phone_number}}, us social security number as {{us_ssn_number}} ,date of birth as {{date_of_birth}}, nationality as {{nationality}}, occupation as {{occupation}}, skill set as {{skill_set}}, gender as {{gender}}, address as {{ADDRESS}}, credit card number as {{CREDIT_CARD_NUMBER}}, US bank account number as {{US_BANK_ACCOUNT}}, bank account cvv as {{CVV}}, Green card number as {{green_card_number}}, marital status as {{marital_status}},email ids as {{email_address}}, religion as {{religion}}, ideology as {{ideology}}, political party affiliation as {{political_party}} , orientation as {{orientation}} and community as {{community}}.
+6) Please stick to point 4 while creating references.
