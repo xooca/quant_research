@@ -186,6 +186,193 @@ def predict(model, dataloader, threshold=0.5):
     
     return binary_preds
 
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, Subset
+import numpy as np
+
+# Define the training function
+def train_model(model, train_loader, val_loader, optimizer, num_epochs=10, removal_freq=4, removal_fraction=0.1, device='cuda'):
+    """
+    Train a multi-label model, evaluate after each epoch, and remove confusing data points after every 4 epochs.
+    
+    :param model: The PyTorch model
+    :param train_loader: DataLoader for training data
+    :param val_loader: DataLoader for validation data
+    :param optimizer: Optimizer (e.g., Adam)
+    :param num_epochs: Total number of epochs to train
+    :param removal_freq: Number of epochs before removing confusing data
+    :param removal_fraction: Fraction of most confusing data points to remove
+    :param device: Device to train on ('cuda' or 'cpu')
+    """
+    
+    # Loss function (multi-label: binary cross-entropy with logits)
+    criterion = nn.BCEWithLogitsLoss(reduction='none')  # Keep individual losses per data point
+    
+    model.to(device)
+
+    # Train loop
+    for epoch in range(num_epochs):
+        model.train()
+        total_loss = 0.0
+        individual_losses = []
+
+        # Training phase
+        for batch_idx, (data, targets) in enumerate(train_loader):
+            data, targets = data.to(device), targets.to(device)
+            optimizer.zero_grad()
+
+            outputs = model(data)
+            loss = criterion(outputs, targets)
+            total_batch_loss = loss.mean()
+            total_batch_loss.backward()
+            optimizer.step()
+
+            # Store total loss and individual losses
+            total_loss += total_batch_loss.item()
+            individual_losses.append(loss.mean(dim=1).detach().cpu().numpy())
+
+        # Evaluation phase after each epoch
+        evaluate_model(model, val_loader, device)
+        print(f'Epoch {epoch+1}/{num_epochs}, Loss: {total_loss/len(train_loader)}')
+
+        # Every 4 epochs, remove the most confusing data points
+        if (epoch + 1) % removal_freq == 0:
+            print(f'Removing confusing data points after epoch {epoch + 1}')
+            remove_confusing_data(train_loader, individual_losses, removal_fraction)
+
+# Evaluation function (simple accuracy for multi-label classification)
+def evaluate_model(model, val_loader, device):
+    model.eval()
+    total_correct = 0
+    total_samples = 0
+    with torch.no_grad():
+        for data, targets in val_loader:
+            data, targets = data.to(device), targets.to(device)
+            outputs = model(data)
+            predicted = (torch.sigmoid(outputs) > 0.5).float()
+            total_correct += (predicted == targets).sum().item()
+            total_samples += targets.numel()
+    accuracy = total_correct / total_samples
+    print(f'Validation Accuracy: {accuracy:.4f}')
+
+# Function to remove the most confusing data points
+def remove_confusing_data(train_loader, individual_losses, removal_fraction):
+    losses = np.concatenate(individual_losses)
+    num_to_remove = int(len(losses) * removal_fraction)
+    
+    # Identify the data points with the highest loss
+    indices_to_remove = np.argsort(losses)[-num_to_remove:]
+    
+    # Modify the DataLoader to remove those samples
+    dataset = train_loader.dataset
+    remaining_indices = list(set(range(len(dataset))) - set(indices_to_remove))
+    
+    # Update the DataLoader with a subset of remaining data points
+    new_subset = Subset(dataset, remaining_indices)
+    train_loader.dataset = new_subset
+
+    print(f'Removed {num_to_remove} data points, {len(remaining_indices)} remaining.')
+
+# Example of usage:
+# model = YourModel()  # Define your model
+# optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+# train_loader = DataLoader(your_train_dataset, batch_size=32, shuffle=True)
+# val_loader = DataLoader(your_val_dataset, batch_size=32)
+
+# train_model(model, train_loader, val_loader, optimizer)
+
+def remove_learned_data(train_loader, individual_losses, threshold=0.05, consecutive_epochs=3):
+    """
+    Removes data points that the model has already learned, based on consistently low losses over multiple epochs.
+    
+    :param train_loader: DataLoader for training data
+    :param individual_losses: A list of lists where each sublist corresponds to the losses of the data points for one epoch
+    :param threshold: Loss threshold below which data points are considered "learned"
+    :param consecutive_epochs: Number of consecutive epochs a data point must have a low loss to be considered learned
+    """
+    # Stack the losses over multiple epochs to track per-sample loss evolution
+    losses_stack = np.stack(individual_losses)  # Shape: (epochs, num_samples)
+    
+    # Identify data points with losses below the threshold for `consecutive_epochs` epochs
+    learned_mask = (losses_stack < threshold).sum(axis=0) >= consecutive_epochs
+    
+    # Get indices of data points that have not been learned yet
+    remaining_indices = np.where(~learned_mask)[0]
+
+    # Modify the DataLoader to keep only the remaining samples
+    dataset = train_loader.dataset
+    new_subset = Subset(dataset, remaining_indices)
+    train_loader.dataset = new_subset
+
+    print(f'Removed {len(learned_mask) - len(remaining_indices)} learned data points, {len(remaining_indices)} remaining.')
+
+# Example usage inside the training loop
+def train_model(model, train_loader, val_loader, optimizer, num_epochs=10, removal_freq=4, threshold=0.05, consecutive_epochs=3, device='cuda'):
+    """
+    Train a multi-label model, evaluate after each epoch, and remove learned data points after every 4 epochs.
+    
+    :param model: The PyTorch model
+    :param train_loader: DataLoader for training data
+    :param val_loader: DataLoader for validation data
+    :param optimizer: Optimizer (e.g., Adam)
+    :param num_epochs: Total number of epochs to train
+    :param removal_freq: Number of epochs before removing learned data
+    :param threshold: Loss threshold below which data points are considered learned
+    :param consecutive_epochs: Number of consecutive epochs a data point must have low loss to be considered learned
+    :param device: Device to train on ('cuda' or 'cpu')
+    """
+    
+    criterion = nn.BCEWithLogitsLoss(reduction='none')  # For multi-label classification
+    model.to(device)
+    individual_losses_per_epoch = []
+
+    for epoch in range(num_epochs):
+        model.train()
+        total_loss = 0.0
+        individual_losses = []
+
+        for batch_idx, (data, targets) in enumerate(train_loader):
+            data, targets = data.to(device), targets.to(device)
+            optimizer.zero_grad()
+
+            outputs = model(data)
+            loss = criterion(outputs, targets)
+            total_batch_loss = loss.mean()
+            total_batch_loss.backward()
+            optimizer.step()
+
+            total_loss += total_batch_loss.item()
+            individual_losses.append(loss.mean(dim=1).detach().cpu().numpy())
+
+        individual_losses_per_epoch.append(np.concatenate(individual_losses))
+
+        # Evaluate after each epoch
+        evaluate_model(model, val_loader, device)
+        print(f'Epoch {epoch+1}/{num_epochs}, Loss: {total_loss/len(train_loader)}')
+
+        # Every `removal_freq` epochs, remove the learned data points
+        if (epoch + 1) % removal_freq == 0:
+            print(f'Removing learned data points after epoch {epoch + 1}')
+            remove_learned_data(train_loader, individual_losses_per_epoch[-removal_freq:], threshold, consecutive_epochs)
+
+# Evaluation function (for multi-label classification)
+def evaluate_model(model, val_loader, device):
+    model.eval()
+    total_correct = 0
+    total_samples = 0
+    with torch.no_grad():
+        for data, targets in val_loader:
+            data, targets = data.to(device), targets.to(device)
+            outputs = model(data)
+            predicted = (torch.sigmoid(outputs) > 0.5).float()
+            total_correct += (predicted == targets).sum().item()
+            total_samples += targets.numel()
+    accuracy = total_correct / total_samples
+    print(f'Validation Accuracy: {accuracy:.4f}')
+
+
+
 # Predict on new data
 predictions = predict(model, train_dataloader)
 
