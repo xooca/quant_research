@@ -412,3 +412,31 @@ predict_dataloader = create_dataloader(
     tokenizer=tokenizer,
     batch_size=2  # Since we only have 2 inputs here
 )
+
+from torch.nn.utils.rnn import pad_sequence
+import torch
+
+class CustomDataCollator:
+    def __init__(self, tokenizer):
+        self.data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+    def __call__(self, batch):
+        input_descriptions = [{'input_ids': item['input_ids'], 
+                               'attention_mask': item['attention_mask']} 
+                              for item in batch]
+        class_descriptions = [{'input_ids': item['class_input_ids'], 
+                               'attention_mask': item['class_attention_mask']} 
+                              for item in batch]
+        
+        input_batch = self.data_collator(input_descriptions)
+        class_batch = self.data_collator(class_descriptions)
+        
+        labels = torch.stack([item['labels'] for item in batch])
+
+        return {
+            'input_ids': input_batch['input_ids'],
+            'attention_mask': input_batch['attention_mask'],
+            'class_input_ids': class_batch['input_ids'],
+            'class_attention_mask': class_batch['attention_mask'],
+            'labels': labels
+        }
